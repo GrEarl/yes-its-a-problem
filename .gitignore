@@ -6,14 +6,11 @@ secrets/
 *.log
 leaf/
 __pycache__/
+*.pyc
 .env
 dist/
 node_modules/
 .agents/
-demo/electron-payment/demo-config.json
 emudhra-dns-mitm-poc/
 artifacts/chains/
-poc/vendor/**/__pycache__/
 .DS_Store
-
-artifacts/chains.zip

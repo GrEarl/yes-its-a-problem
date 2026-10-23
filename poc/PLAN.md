@@ -4,7 +4,7 @@
 
 ## 1. Chain
 
-1. A recursive resolver uses an out-of-bailiwick / sibling ADDITIONAL A record from a parent zone referral. It uses the supplied address instead of resolving the nameserver name independently.
+1. A recursive resolver uses an ADDITIONAL A record from a parent zone referral. It uses the supplied address instead of resolving the nameserver name independently.
 2. Some TLS clients accept a certificate forged with a recovered eMudhra intermediate CA private key.
 
 ## 2. Names
@@ -27,6 +27,10 @@
                     for the MITM host. It serves the valid wildcard
                     certificate for the random probe names, so the DNS check
                     can return path=fake.
+
+Note: in this lab, IP1 is also authoritative for ns<hash>.true.<zone>, so
+the ADDITIONAL A is authoritative data from the same provider. The model
+shows the data flow, not a strict out-of-bailiwick failure.
 
 Safe resolver
 
@@ -64,7 +68,7 @@ The leaf is created by the recovered intermediate key, not by a public CA. The p
 ## 7. Deployment
 
 1. Create the Cloudflare DNS records and delegation.
-2. Start the three DNS roles and the HTTP servers on the VPS addresses.
+2. Start the three DNS roles and the HTTP servers on the VPS addresses. Pass `--bind 0.0.0.0` explicitly for the public HTTP servers.
 3. Run `poc/lab/certs/make_leaf.py` with the recovered CA private key. Use the resulting leaf for the probe hosts.
 4. Start one HTTP server with the valid certificate and one with the forged certificate.
 5. Publish `docs/` with GitHub Pages.

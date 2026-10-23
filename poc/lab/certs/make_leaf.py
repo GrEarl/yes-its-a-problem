@@ -125,12 +125,15 @@ def main():
     leaf = builder.sign(private_key=ca_key, algorithm=hashes.SHA384())
 
     out = Path(a.out)
-    out.mkdir(parents=True, exist_ok=True)
+    out.mkdir(parents=True, exist_ok=True, mode=0o700)
     os.chmod(out, 0o700)
-    (out / "leaf.key.pem").write_bytes(leaf_key.private_bytes(
-        serialization.Encoding.PEM, serialization.PrivateFormat.PKCS8,
-        serialization.NoEncryption()))
-    os.chmod(out / "leaf.key.pem", 0o600)
+    leaf_key_path = out / "leaf.key.pem"
+    fd = os.open(leaf_key_path, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
+    os.fchmod(fd, 0o600)
+    with os.fdopen(fd, "wb") as fh:
+        fh.write(leaf_key.private_bytes(
+            serialization.Encoding.PEM, serialization.PrivateFormat.PKCS8,
+            serialization.NoEncryption()))
     (out / "leaf.crt.pem").write_bytes(leaf.public_bytes(serialization.Encoding.PEM))
     (out / "intermediate.pem").write_bytes(ca_cert.public_bytes(serialization.Encoding.PEM))
     (out / "root.pem").write_bytes(root.public_bytes(serialization.Encoding.PEM))

@@ -4,10 +4,12 @@ lab_dns.py -- authoritative DNS lab for the "yes, it's a problem" PoC.
 
 Roles
 -----
-provider : simulates the vulnerable shared-DNS provider.  It is authoritative
-           for --zone and returns a crafted referral for the victim child zone
-           (--child.<zone>): an NS record for a sibling nameserver plus an
-           out-of-bailiwick ADDITIONAL A record pointing at the fake IP.
+provider : simulates a shared-DNS provider.  It is authoritative for --zone
+           and returns a crafted referral for the victim child zone
+           (--child.<zone>): an NS record for a generated nameserver name plus
+           an ADDITIONAL A record pointing at the fake IP.  The provider also
+           answers A for that name, so the model shows a lying ADDITIONAL
+           record rather than a strict out-of-bailiwick failure.
 true     : the legitimate nameserver for the victim child zone (true answers).
 fake     : the attacker nameserver for the victim child zone (fake answers).
 
@@ -29,13 +31,11 @@ import time
 from pathlib import Path
 
 try:
-    from dnslib import (A, AAAA, DNSLabel, DNSRecord, NS, QTYPE, RCODE, RR, SOA,
-                        TXT)
+    from dnslib import (A, NS, QTYPE, RCODE, RR, SOA, TXT)
     from dnslib.server import BaseResolver, DNSServer
 except ImportError:
     sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent / "vendor"))
-    from dnslib import (A, AAAA, DNSLabel, DNSRecord, NS, QTYPE, RCODE, RR, SOA,
-                        TXT)
+    from dnslib import (A, NS, QTYPE, RCODE, RR, SOA, TXT)
     from dnslib.server import BaseResolver, DNSServer
 
 
@@ -125,8 +125,8 @@ class LabResolver(BaseResolver):
             reply.header.aa = 0
             reply.header.rcode = RCODE.NOERROR
             reply.add_auth(RR(child, QTYPE.NS, rdata=NS(ns_name), ttl=self.ttl))
-            # The malicious, out-of-bailiwick glue.  This is the record a
-            # resolver must ignore; the lab server deliberately emits it.
+            # The malicious ADDITIONAL A.  The provider also answers A for
+            # this name; the lab server deliberately emits the lie here.
             reply.add_ar(a_record(ns_name, self.fake_ip, self.ttl))
             self.log(request, "referral-with-malicious-additional")
             return reply

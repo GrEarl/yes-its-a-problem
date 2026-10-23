@@ -20,7 +20,7 @@
 
   <section class="poc">
     <h2 data-i18n="pocTitle">About this PoC</h2>
-    <p data-i18n="pocBody">This page is a PoC that combines DNS delegation responses with TLS certificate verification. A resolver that uses the out-of-bailiwick ADDITIONAL glue in the delegation response reaches the attacker's nameserver instead of the legitimate one. The attacker's server presents a certificate signed with a recovered eMudhra intermediate CA private key, which a TLS client may accept.</p>
+    <p data-i18n="pocBody">This page is a PoC that combines DNS delegation responses with TLS certificate verification. A resolver that uses the ADDITIONAL glue in the delegation response reaches the attacker's nameserver instead of the legitimate one. The attacker's server presents a certificate signed with a recovered eMudhra intermediate CA private key, which a TLS client may accept.</p>
     <p data-i18n="pocBody2">The two buttons below run each step from this browser. The page shows each result and the combined DNS and TLS result. When a request fails, the page cannot say why: fetch() does not expose certificate errors, so certificate rejection and connection failure are indistinguishable.</p>
     <p class="source"><a href="https://emudhra.we-have-a-problem.com/" data-i18n="researchLink">Original research (third party)</a></p>
   </section>
@@ -34,7 +34,7 @@
   <p id="dns-result" class="result" aria-live="polite"></p>
 
   <h3 data-i18n="tlsCheckTitle">TLS verification</h3>
-  <p data-i18n="tlsCheckBody">Connects to the host that presents the forged certificate. If the connection completes, the page shows which certificate was presented. If it does not complete, certificate rejection and connection failure cannot be distinguished.</p>
+  <p data-i18n="tlsCheckBody">Connects to the MITM host. If the connection completes, the page shows which certificate was presented. If it does not complete, certificate rejection and connection failure cannot be distinguished.</p>
   <button id="tls-btn" class="btn" data-i18n="tlsCheckBtn">Check TLS</button>
   <p id="tls-result" class="result" aria-live="polite"></p>
 

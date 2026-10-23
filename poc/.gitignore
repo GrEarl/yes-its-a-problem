@@ -1,8 +1,0 @@
-# never commit private material
-secrets/
-*.key.pem
-*.key
-*.key.hex
-*.log
-__pycache__/
-.env

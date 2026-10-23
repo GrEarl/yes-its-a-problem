@@ -4,10 +4,10 @@
 
 DNS の委任応答と TLS の証明書検証を組み合わせた PoC です。
 
-1. 再帰リゾルバが委任応答の out-of-bailiwick な ADDITIONAL グルーを受け入れます。
+1. 再帰リゾルバが委任応答の ADDITIONAL グルーを使います。
 2. 一部の TLS クライアントは偽造証明書を受け入れます。証明書は回収した eMudhra 中間 CA の秘密鍵で署名されています。
 
-元の調査（第三者）: <https://emudhra.we-have-a-problem.com/>
+元の調査（第三者による）: <https://emudhra.we-have-a-problem.com/>
 
 ## 構成
 
@@ -26,6 +26,8 @@ DNS の委任応答と TLS の証明書検証を組み合わせた PoC です。
     bash poc/lab/dns/test_local.sh
 
 `simulate.py` は provider の応答を使い、安全な経路と脆弱な経路を模擬します。実際のリゾルバの判定ではありません。
+
+ラボの provider は生成したネームサーバー名 `ns<hash>.true.<zone>` についても権威を持ちます。そのため、このテストは provider が ADDITIONAL に嘘の A を入れる状況を模擬するもので、準拠したリゾルバが out-of-bailiwick のグルーを受け入れることを示すものではありません。
 
 1. provider が委任応答で sibling NS と 198.51.100.66 の ADDITIONAL A を返す。
 2. 安全な経路はグルーを無視し、provider へ直接問い合わせて 192.0.2.10 を受け取る。

@@ -4,7 +4,7 @@
 
 ## 1. 連鎖
 
-1. 再帰リゾルバが親ゾーンの委任応答に含まれる out-of-bailiwick / sibling な ADDITIONAL A レコードを使います。ネームサーバー名を独立に解決せず、示されたアドレスを使います。
+1. 再帰リゾルバが親ゾーンの委任応答に含まれる ADDITIONAL A レコードを使います。ネームサーバー名を独立に解決せず、示されたアドレスを使います。
 2. 一部の TLS クライアントは回収した eMudhra 中間 CA の秘密鍵で署名された証明書を受け入れます。
 
 ## 2. 名前
@@ -23,8 +23,12 @@
                     ns*.true.lab... の A には IP3 を返す。
     IP3  true NS   正規の A レコードと、resolver probe 用の正規証明書を返す。
     IP2  fake NS   偽の A レコードと、MITM ホスト用の偽造 eMudhra 証明書を返す。
-                   ランダムな probe 名には正規のワイルドカード証明書を返し、
-                   DNS チェックが path=fake を返せるようにする。
+                    ランダムな probe 名には正規のワイルドカード証明書を返し、
+                    DNS チェックが path=fake を返せるようにする。
+
+注: このラボでは IP1 が ns<hash>.true.<zone> についても権威を持つため、
+ADDITIONAL A は同じ provider の権威データになる。モデルが示すのはデータの
+流れであり、厳密な out-of-bailiwick の失敗ではない。
 
 安全なリゾルバ
 
@@ -56,14 +60,14 @@ DNS と TLS は別々に確認します。結果はブラウザのページ内�
 
 ## 6. デモ
 
-- `demo/electron-payment/`: KBC の振込画面。`legacy` は Electron 36.9.5、`hardened` は Electron 45.0.0。
+- `demo/electron-payment/`: KBC（空手形銀行）の振込画面。`legacy` は Electron 36.9.5、`hardened` は Electron 45.0.0。
 - `demo/fake-pkg/`: Kirimochi。英語のみのパッケージマネージャーのデモ。manifest を取得し、レジストリが提供する pin されていない鍵で署名を検証する。
 
 ## 7. デプロイ
 
 1. Cloudflare の DNS レコードと委任を作る。
-2. VPS 上で 3 つの DNS 役割と HTTP サーバーを起動する。
+2. VPS 上で 3 つの DNS 役割と HTTP サーバーを起動する。公開する HTTP サーバーでは `--bind 0.0.0.0` を明示する。
 3. 回収した CA 秘密鍵で `poc/lab/certs/make_leaf.py` を実行する。probe ホストには生成したリーフを使う。
 4. 正規証明書の HTTP サーバーと、偽造証明書の HTTP サーバーを 1 台ずつ起動する。
 5. GitHub Pages で `docs/` を公開する。
-6. 公開するラボでは `lab_http.py --log` を有効にしない。訪問者の IP アドレスと User-Agent を記録する。
+6. 公開するラボでは `lab_http.py --log` を有効にしない。`--log` は訪問者の IP アドレスと User-Agent を記録する。

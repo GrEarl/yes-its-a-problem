@@ -2,12 +2,13 @@
 
 Public evidence for the eMudhra intermediate-CA key-compromise finding:
 
-* `chains/`, `chains.zip`: served certificate chains.
-* `proof/`, `proof.zip`: public intermediates, public keys, signatures,
-  and the signed proof message.
+* `proof/`: public intermediates, public keys, signatures, and the signed proof message.
 * `impacted-intermediates.json`, `roots.json`: metadata.
+
+Local-only working files, excluded from git:
+
+* `chains/`: served certificate chains.
 * `leaf/leaf.crt.pem`: public leaf certificate from the earlier demo.
-* `certs/`: public certificates, if present.
 
 Private key material is not in this directory. The recovered intermediate keys,
 the recovered scalar table, the hex scalar, and the leaf private key are in

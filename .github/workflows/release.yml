@@ -20,27 +20,21 @@ jobs:
           - os: macos-latest
             flavor: legacy
             electron: "36.9.5"
-            config: config/legacy.json
           - os: macos-latest
             flavor: hardened
             electron: "45.0.0"
-            config: config/hardened.json
           - os: ubuntu-latest
             flavor: legacy
             electron: "36.9.5"
-            config: config/legacy.json
           - os: ubuntu-latest
             flavor: hardened
             electron: "45.0.0"
-            config: config/hardened.json
           - os: windows-latest
             flavor: legacy
             electron: "36.9.5"
-            config: config/legacy.json
           - os: windows-latest
             flavor: hardened
             electron: "45.0.0"
-            config: config/hardened.json
     defaults:
       run:
         working-directory: demo/electron-payment
@@ -54,16 +48,11 @@ jobs:
       - name: Install build dependencies
         run: npm install --no-audit --no-fund
 
-      - name: Select demo config
-        run: node -e "require('fs').copyFileSync(process.argv[1], 'demo-config.json')" ${{ matrix.config }}
-
       - name: Pin Electron version
         run: npm install --no-save --no-audit --no-fund electron@${{ matrix.electron }}
 
       - name: Build
         run: npx electron-builder --publish never -c.electronVersion=${{ matrix.electron }}
-        env:
-          FLAVOR: ${{ matrix.flavor }}
 
       - name: Prefix artifact names
         shell: bash

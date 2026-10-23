@@ -1,6 +1,5 @@
 "use strict";
 const { app, BrowserWindow, ipcMain, net } = require("electron");
-const fs = require("fs");
 const path = require("path");
 
 const EXPECTED = Object.freeze({
@@ -10,34 +9,16 @@ const EXPECTED = Object.freeze({
   currency: "JPY"
 });
 
-function loadConfig() {
-  const fallback = {
-    apiUrl: "https://pay.v.lab.yes-its-a-problem.iamwonderingif.com",
-    flavor: "hardened"
-  };
-  let cfg = { ...fallback };
-  const candidates = [
-    path.join(__dirname, "demo-config.json"),
-    path.join(process.resourcesPath || "", "demo-config.json")
-  ];
-  for (const p of candidates) {
-    try {
-      if (p && fs.existsSync(p)) {
-        cfg = { ...cfg, ...JSON.parse(fs.readFileSync(p, "utf8")) };
-        break;
-      }
-    } catch (_) { /* keep fallback */ }
-  }
-  if (process.env.KBC_API_URL) cfg.apiUrl = process.env.KBC_API_URL;
-  if (process.env.KBC_FLAVOR) cfg.flavor = process.env.KBC_FLAVOR;
+function loadApiUrl() {
+  let apiUrl = "https://pay.v.lab.yes-its-a-problem.iamwonderingif.com";
+  if (process.env.KBC_API_URL) apiUrl = process.env.KBC_API_URL;
   for (const arg of process.argv) {
-    if (arg.startsWith("--kbc-api-url=")) cfg.apiUrl = arg.slice("--kbc-api-url=".length);
-    if (arg.startsWith("--kbc-flavor=")) cfg.flavor = arg.slice("--kbc-flavor=".length);
+    if (arg.startsWith("--kbc-api-url=")) apiUrl = arg.slice("--kbc-api-url=".length);
   }
-  return cfg;
+  return apiUrl;
 }
 
-const config = loadConfig();
+const config = { apiUrl: loadApiUrl() };
 
 async function fetchJson(url, options = {}) {
   const controller = new AbortController();
@@ -74,9 +55,6 @@ function createWindow() {
 app.whenReady().then(() => {
   ipcMain.handle("kbc:config", () => ({
     apiUrl: config.apiUrl,
-    flavor: config.flavor,
-    electron: process.versions.electron,
-    chrome: process.versions.chrome,
     expected: EXPECTED
   }));
 

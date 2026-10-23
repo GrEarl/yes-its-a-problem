@@ -14,14 +14,12 @@ fake : the attacker HTTPS server.  Serves the same valid LE wildcard
 All responses are deliberately harmless.  No credentials are read or stored.
 """
 import argparse
+import html
 import json
-import os
 import ssl
-import sys
 import threading
 import time
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
-from pathlib import Path
 from urllib.parse import urlparse, parse_qs
 
 LOG_LOCK = threading.Lock()
@@ -132,7 +130,7 @@ class Handler(BaseHTTPRequestHandler):
         if path in ("/", "/index.html"):
             body = ("<!doctype html><meta charset=utf-8><title>lab %s</title>"
                     "<h1>lab %s</h1><p>Host: %s</p>"
-                    % (ARGS.role, ARGS.role, self.headers.get("Host", "")))
+                    % (ARGS.role, ARGS.role, html.escape(self.headers.get("Host", ""))))
             self._send(200, body, "text/html; charset=utf-8")
             return
         self._send(404, {"error": "not found"})
@@ -164,7 +162,7 @@ def main():
     global ARGS
     ap = argparse.ArgumentParser()
     ap.add_argument("--role", required=True, choices=["true", "fake"])
-    ap.add_argument("--bind", default="0.0.0.0")
+    ap.add_argument("--bind", default="127.0.0.1", help="use 0.0.0.0 explicitly for a public lab")
     ap.add_argument("--port", type=int, default=8080)
     ap.add_argument("--cert")
     ap.add_argument("--key")

@@ -18,8 +18,7 @@
     "files": [
       "main.js",
       "preload.js",
-      "renderer/**/*",
-      "demo-config.json"
+      "renderer/**/*"
     ],
     "directories": {
       "output": "dist"

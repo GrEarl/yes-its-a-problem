@@ -25,17 +25,19 @@ DEFAULT_URL = "https://pkg.v.lab.yes-its-a-problem.iamwonderingif.com"
 
 
 class ConnectHTTPSConnection(http.client.HTTPSConnection):
-    """HTTPS connection supporting an optional host override for local lab testing."""
+    """HTTPS connection supporting optional host and port overrides for local lab testing."""
 
-    def __init__(self, host, port, context, connect_host=None, timeout=10):
+    def __init__(self, host, port, context, connect_host=None, connect_port=None, timeout=10):
         self._connect_host = connect_host
+        self._connect_port = connect_port
         self._context = context
         self._timeout = timeout
         super().__init__(host, port, context=context, timeout=timeout)
 
     def connect(self):
         target = self._connect_host or self.host
-        sock = socket.create_connection((target, self.port), self._timeout)
+        port = self._connect_port or self.port
+        sock = socket.create_connection((target, port), self._timeout)
         self.sock = self._context.wrap_socket(sock, server_hostname=self.host)
 
 
@@ -89,11 +91,11 @@ def main(argv=None):
         eprint("kirimochi: error: HTTPS is required")
         return 3
     connect_host = None
+    connect_port = None
     if args.connect:
         ch, _, cp = args.connect.partition(":")
-        connect_host = (ch, int(cp or port))
-    else:
-        connect_host = None
+        connect_host = ch
+        connect_port = int(cp) if cp else None
 
     print("Kirimochi %s (Demo Package Manager)" % VERSION)
     print("Registry: %s" % args.url)
@@ -102,10 +104,8 @@ def main(argv=None):
 
     ctx = ssl.create_default_context()
     try:
-        conn = ConnectHTTPSConnection(host, port, ctx, connect_host=connect_host[0] if connect_host else None,
-                                      timeout=10)
-        if connect_host:
-            conn._connect_host = connect_host[0]
+        conn = ConnectHTTPSConnection(host, port, ctx, connect_host=connect_host,
+                                      connect_port=connect_port, timeout=10)
         status, headers, manifest_bytes = fetch(conn, "/manifest.json", host)
         print("[1/4] GET /manifest.json      -> %d (%d bytes)" % (status, len(manifest_bytes)))
         if status != 200:
@@ -117,13 +117,13 @@ def main(argv=None):
         print("      Package: %s@%s" % (manifest.get("name", "?"), manifest.get("version", "?")))
 
         status, _, key_bytes = fetch(conn, key_url, host)
-        print("[2/4] GET %-21s -> %d (%d bytes)" % (key_url, status, len(key_bytes)))
+        print("[2/4] GET %-19s -> %d (%d bytes)" % (key_url, status, len(key_bytes)))
         if status != 200:
             eprint("kirimochi: failed to fetch public key")
             return 3
 
         status, _, pkg = fetch(conn, manifest.get("tarball_url") or "/package.tar.gz", host)
-        print("[3/4] GET %-21s -> %d (%d bytes)" % (manifest.get("tarball_url") or "/package.tar.gz", status, len(pkg)))
+        print("[3/4] GET %-19s -> %d (%d bytes)" % (manifest.get("tarball_url") or "/package.tar.gz", status, len(pkg)))
         if status != 200:
             eprint("kirimochi: failed to fetch package payload")
             return 3

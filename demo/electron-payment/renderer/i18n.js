@@ -14,11 +14,11 @@
       receivedTitle: "受信した内容",
       dangerDns: "なんてこった！あなたのDNSは汚染されているため偽造された通信経路を踏んでいる！",
       safeBody: "証明書の検証に失敗しました。",
-      electronUnavailable: "Electron から起動してください。",
+      electronUnavailable: "Electron で起動してください。",
       loading: "取得中...",
       quoteFailed: "振込内容を取得できませんでした。",
       quoteOk: "振込内容を受信しました。",
-      tampered: "送金先、口座番号、または金額が一致しません。",
+      tampered: "送金先、口座、または金額が一致しません。",
       paid: "デモ送金を完了しました。",
       receipt: "デモ領収書"
     },

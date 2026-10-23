@@ -4,7 +4,7 @@
 
 A PoC combining DNS delegation responses and TLS certificate verification.
 
-1. A recursive resolver accepts an out-of-bailiwick ADDITIONAL glue record in a delegation response.
+1. A recursive resolver uses an ADDITIONAL glue record in a delegation response.
 2. Some TLS clients accept a forged certificate. The certificate is signed with a recovered eMudhra intermediate CA private key.
 
 Original research (third party): <https://emudhra.we-have-a-problem.com/>
@@ -26,6 +26,8 @@ Run from the repository root.
     bash poc/lab/dns/test_local.sh
 
 `simulate.py` uses the provider response to model a safe path and a vulnerable path. It is not a real resolver test.
+
+The lab provider is also authoritative for the generated nameserver name `ns<hash>.true.<zone>`. It therefore models a provider that emits a lying ADDITIONAL record; this test does not show that a compliant resolver accepts out-of-bailiwick glue.
 
 1. The provider returns a referral with the sibling NS and an ADDITIONAL A for 198.51.100.66.
 2. The safe path ignores glue, asks the provider directly, and receives 192.0.2.10.

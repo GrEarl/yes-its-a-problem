@@ -9,7 +9,6 @@ vulnerable: trusts the malicious ADDITIONAL, asks the fake NS.
 """
 import argparse
 import socket
-import sys
 
 from dnslib import DNSRecord, QTYPE
 

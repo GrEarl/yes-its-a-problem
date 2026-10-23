@@ -13,7 +13,6 @@ import shutil
 import ssl
 import subprocess
 import tempfile
-import time
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import urlparse
 

@@ -4,24 +4,24 @@
 
 DNS の委任応答と TLS の証明書検証を組み合わせた PoC です。
 
-1. 再帰リゾルバが委任応答に含まれる out-of-bailiwick な ADDITIONAL グルーを受け入れます。本来はネームサーバー名を別に解決すべきところで、攻撃側のアドレスを使います。
+1. 再帰リゾルバが委任応答に含まれる ADDITIONAL グルーを使います。本来はネームサーバー名を別に解決すべきところで、示されたアドレスを使います。
 2. 一部の TLS クライアントは偽造証明書を受け入れます。証明書は回収した eMudhra 中間 CA の秘密鍵で署名されています。
 
-元の調査（第三者）: <https://emudhra.we-have-a-problem.com/>
+元の調査（第三者による）: <https://emudhra.we-have-a-problem.com/>
 
 ## 構成
 
 | パス | 内容 |
 |---|---|
 | `docs/` | DNS と TLS の確認ページ。GitHub Pages のソース。 |
-| `demo/electron-payment/` | 振込画面の Electron デモ。旧ビルドと現行ビルドを比較する。 |
+| `demo/electron-payment/` | 振込画面の Electron デモ。旧ビルド（legacy）と現行ビルド（hardened）を比較する。 |
 | `demo/fake-pkg/` | Kirimochi。英語のみのパッケージマネージャーのデモ。 |
 | `poc/` | DNS ラボ、HTTP(S) サーバー、証明書生成、設計ノート。 |
 | `.github/workflows/release.yml` | Electron デモと `kirimochi.pyz` をビルドし、`v*` タグでリリースする。 |
 
 ## ローカル確認
 
-最初にリーフ証明書を作ります。初回は公開 CA 証明書から回収した CA 秘密鍵を `secrets/artifacts/keys` に生成します。
+最初にリーフ証明書を作ります。初回の実行では、`make_leaf.py` が公開 CA 証明書から CA 秘密鍵を回収し、`secrets/artifacts/keys` に保存します。
 
     python3 poc/lab/certs/make_leaf.py --days 30
 
