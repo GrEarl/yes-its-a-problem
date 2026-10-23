@@ -2,7 +2,6 @@
 (function () {
   const dict = {
     ja: {
-      ribbon: "PoC",
       pocNotice: "空手形銀行は架空の銀行です。実際の振込は行われません。",
       bankName: "空手形銀行",
       paymentTitle: "振込内容",
@@ -25,7 +24,6 @@
       paidWith: "PoC の送金を完了しました。（PoC 領収書 %s）"
     },
     en: {
-      ribbon: "PoC",
       pocNotice: "Karategata Banking is fictional. No real transfer is made.",
       bankName: "Karategata Banking Corporation",
       paymentTitle: "Transfer details",
