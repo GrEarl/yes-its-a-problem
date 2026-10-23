@@ -22,7 +22,7 @@ In another shell, run the client.
       --url https://pkg.v.lab.yes-its-a-problem.iamwonderingif.com:9445 \
       --connect 127.0.0.1:9445
 
-If the runtime trust store accepts the forged chain, the client prints the scenario warning and the PoC qualification, then ends with `DANGER: signature verification passed, but the registry-provided key is unpinned and the source is untrusted; no package was installed.` The scenario line says DNS may be poisoned; the qualification says the client does not inspect DNS itself. If it rejects the chain, it prints `SAFE: TLS certificate verification failed; the connection was blocked and no package was installed.`. The result depends on the runtime, not on the client code.
+If the runtime trust store accepts the forged chain, the client prints the scenario warning and the PoC qualification, then ends with `DANGER: signature verification passed, but the registry-provided key is unpinned and the source is untrusted; no package was installed.` The scenario line says DNS may be poisoned; the qualification says the client does not inspect DNS itself. If it rejects the chain, it prints `SAFE: TLS certificate verification failed; the connection was blocked and no package was installed.` The result depends on the runtime, not on the client code.
 
 ## Build
 
