@@ -24,7 +24,9 @@
     IP3  true NS   serves the real A records and a valid certificate for the
                     resolver probe.
     IP2  fake NS   serves forged A records and the forged eMudhra certificate
-                    for the MITM host.
+                    for the MITM host. It serves the valid wildcard
+                    certificate for the random probe names, so the DNS check
+                    can return path=fake.
 
 Safe resolver
 

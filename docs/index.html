@@ -1,10 +1,10 @@
 <!doctype html>
-<html lang="ja">
+<html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Yes, it's a problem</title>
-  <meta name="description" content="DNS and TLS verification.">
+  <meta name="description" content="A DNS delegation-glue and forged-certificate PoC checker.">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -16,28 +16,35 @@
   </p>
 
   <h1 data-i18n="siteName">Yes, it's a problem</h1>
-  <p class="sub" data-i18n="siteSub">DNS と TLS の確認</p>
+  <p class="sub" data-i18n="siteSub">DNS and TLS checks</p>
 
-  <h2 data-i18n="checkTitle">確認</h2>
-  <p data-i18n="checkLead">各ボタンは検証環境のエンドポイントへ HTTPS リクエストを 1 回送ります。結果はこのページ内に表示されます。</p>
+  <section class="poc">
+    <h2 data-i18n="pocTitle">About this PoC</h2>
+    <p data-i18n="pocBody">This site checks a PoC that uses out-of-bailiwick ADDITIONAL glue in a DNS delegation response and a certificate forged with a recovered eMudhra intermediate CA private key. DNS and TLS are checked separately.</p>
+    <p data-i18n="pocBody2">If a recursive resolver trusts the glue, DNS is steered to a fake nameserver. Even then, the connection fails if the browser rejects the certificate. That intermediate state is shown in the result.</p>
+  </section>
 
-  <h3 data-i18n="dnsCheckTitle">DNS 経路</h3>
-  <p data-i18n="dnsCheckBody">ランダムなサブドメインを問い合わせ、リゾルバがどちらの経路に到達したかを表示します。</p>
-  <button id="dns-btn" class="btn" data-i18n="dnsCheckBtn">DNS を確認</button>
+  <h2 data-i18n="checkTitle">Checks</h2>
+  <p data-i18n="checkLead">Each button sends HTTPS requests to a check endpoint. Results are shown on this page.</p>
+
+  <h3 data-i18n="dnsCheckTitle">DNS path</h3>
+  <p data-i18n="dnsCheckBody">Connects to a random subdomain over HTTPS and shows which nameserver answered.</p>
+  <button id="dns-btn" class="btn" data-i18n="dnsCheckBtn">Check DNS</button>
   <p id="dns-result" class="result" aria-live="polite"></p>
 
-  <h3 data-i18n="tlsCheckTitle">TLS 検証</h3>
-  <p data-i18n="tlsCheckBody">偽造証明書を提示するホストへ接続します。受理した場合だけ結果を表示し、拒否と通信失敗は判定不能とします。</p>
-  <button id="tls-btn" class="btn" data-i18n="tlsCheckBtn">TLS を確認</button>
+  <h3 data-i18n="tlsCheckTitle">TLS verification</h3>
+  <p data-i18n="tlsCheckBody">Connects to a host presenting the forged certificate and checks whether the certificate is accepted. If the connection fails, a control request to a host with a valid certificate helps tell a certificate rejection apart from a network failure.</p>
+  <button id="tls-btn" class="btn" data-i18n="tlsCheckBtn">Check TLS</button>
   <p id="tls-result" class="result" aria-live="polite"></p>
 
   <div id="verdict" class="verdict hidden" role="status">
-    <h3 data-i18n="verdictTitle">結果</h3>
-    <p id="verdict-text"></p>
+    <h3 data-i18n="verdictTitle">Result</h3>
+    <p id="verdict-dns"></p>
+    <p id="verdict-tls"></p>
   </div>
 
-  <h2 data-i18n="demosTitle">デモ</h2>
-  <p><a data-releases href="#" data-i18n="kbcName">空手形銀行</a> / <a data-releases href="#" data-i18n="kiriName">Kirimochi</a></p>
+  <h2 data-i18n="demosTitle">Demos</h2>
+  <p><a data-releases href="#" data-i18n="kbcName">Karategata Banking</a> / <a data-releases href="#" data-i18n="kiriName">Kirimochi</a></p>
 
   <footer>
     <p><a data-releases href="#" data-i18n="footerRepo">Releases</a></p>

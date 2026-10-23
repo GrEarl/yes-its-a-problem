@@ -23,6 +23,8 @@
                     ns*.true.lab... の A には IP3 を返す。
     IP3  true NS   正規の A レコードと、resolver probe 用の正規証明書を返す。
     IP2  fake NS   偽の A レコードと、MITM ホスト用の偽造 eMudhra 証明書を返す。
+                   ランダムな probe 名には正規のワイルドカード証明書を返し、
+                   DNS チェックが path=fake を返せるようにする。
 
 安全なリゾルバ
 
