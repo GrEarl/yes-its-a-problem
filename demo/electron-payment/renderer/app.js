@@ -189,7 +189,13 @@
       setStatus(t("electronUnavailable"), "bad");
       return;
     }
-    cfg = await window.kbc.config();
+    try {
+      cfg = await window.kbc.config();
+    } catch (e) {
+      console.error("config failed:", String(e && e.message ? e.message : e));
+      setStatus(t("configFailed"), "warn");
+      return;
+    }
     renderExpected();
   }
 

@@ -9,7 +9,7 @@ This is a PoC. Karategata Banking is fictional; no real transfer is made.
 - `legacy`: Electron 36.9.5.
 - `hardened`: Electron 45.0.0.
 - Both builds use the same app code. Only the Electron runtime version and the certificate/revocation data it ships differ. The app does not include code that disables certificate verification.
-- The hardened build reports `net::ERR_CERT_AUTHORITY_INVALID` for the forged chain; the legacy build accepts it. A certificate error means the connection was not established. This was observed locally on macOS; certificate transparency was not evaluated. In this demo a certificate error is shown as SAFE because the connection was not established; it is not a claim that the network path is safe.
+- The hardened build reports `net::ERR_CERT_AUTHORITY_INVALID` for the forged chain; the legacy build accepts it. A certificate error means the connection was not established. In this demo a certificate error is shown as SAFE because the connection was not established; it is not a claim that the network path is safe.
 
 ## Local run
 

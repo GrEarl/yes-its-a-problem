@@ -20,7 +20,7 @@ import tempfile
 from urllib.parse import urlparse
 
 VERSION = "0.1.0"
-DEMO_NAME = "kirimochi"
+PROG = "kirimochi"
 DEFAULT_URL = "https://pkg.v.lab.yes-its-a-problem.iamwonderingif.com"
 
 
@@ -65,7 +65,7 @@ def verify_with_openssl(manifest_bytes, signature_b64, public_key_pem):
         with open(m, "wb") as f:
             f.write(manifest_bytes)
         try:
-            sig = base64.b64decode(signature_b64)
+            sig = base64.b64decode(signature_b64, validate=True)
         except Exception as e:
             return None, "invalid signature encoding: %s" % e
         with open(s, "wb") as f:
@@ -78,7 +78,7 @@ def verify_with_openssl(manifest_bytes, signature_b64, public_key_pem):
 
 
 def parse_args(argv):
-    ap = argparse.ArgumentParser(prog=DEMO_NAME, description="Kirimochi package manager PoC")
+    ap = argparse.ArgumentParser(prog=PROG, description="Kirimochi package manager PoC")
     ap.add_argument("command", choices=["install"], help="demo command ('install' only)")
     ap.add_argument("name", nargs="?", default="demo-lib", help="package name (default: demo-lib)")
     ap.add_argument("--url", default=DEFAULT_URL, help="registry URL")
@@ -92,7 +92,7 @@ def main(argv=None):
     host = parsed.hostname
     port = parsed.port or (443 if parsed.scheme == "https" else 80)
     if parsed.scheme != "https":
-        eprint("kirimochi: error: HTTPS is required")
+        eprint("INCONCLUSIVE: HTTPS is required; no package was installed.")
         return 3
     connect_host = None
     connect_port = None
@@ -134,14 +134,14 @@ def main(argv=None):
             return 3
     except ssl.SSLCertVerificationError as e:
         print()
-        print("BLOCKED: TLS certificate verification failed.")
+        print("SAFE: TLS certificate verification failed; the connection was blocked and no package was installed.")
         print("This runtime rejected the forged certificate chain.")
         print("Detail: %s" % (e.reason or e))
         print("No files were installed.")
         return 2
     except ssl.SSLError as e:
         print()
-        print("BLOCKED: TLS error: %s" % e)
+        print("INCONCLUSIVE: TLS error: %s; no package was installed." % e)
         print("No files were installed.")
         return 2
     except Exception as e:
@@ -156,7 +156,7 @@ def main(argv=None):
     print("      Expected: %s" % expected)
     print("      Actual  : %s" % actual)
     if not ok_hash:
-        eprint("BLOCKED: checksum mismatch; no package was installed.")
+        eprint("DANGER: checksum mismatch; no package was installed.")
         return 3
 
     ok_sig, sig_detail = verify_with_openssl(manifest_bytes, signature, key_bytes)
@@ -167,12 +167,12 @@ def main(argv=None):
     print("      Signature: %s (registry-provided key; unpinned)" % ("PASS" if ok_sig else "FAIL"))
     if not ok_sig:
         print("      %s" % sig_detail)
-        print("BLOCKED: signature verification failed; no package was installed.")
+        print("DANGER: signature verification failed; no package was installed.")
         return 3
 
     print()
     print("KIRIMOCHI PoC")
-    print("  Oh no! Your DNS is poisoned, so you're on a forged network path!")
+    print("  Scenario: the network path is forged and DNS may be poisoned.")
     print("  Uh-oh! Your environment cannot detect forged application signatures!")
     print("  (PoC: this client does not check DNS itself; the text states the scenario.)")
     print()
@@ -180,6 +180,7 @@ def main(argv=None):
     print("  so signature verification passed despite the untrusted source.")
     print()
     print("Signature verification passed.")
+    print("DANGER: signature verification passed, but the registry-provided key is unpinned and the source is untrusted.")
     return 0
 
 

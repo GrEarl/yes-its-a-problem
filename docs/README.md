@@ -8,7 +8,7 @@ Static site. There is no build step. The page supports Japanese and English, and
 
 1. Push the repository to GitHub.
 2. Open Settings, then Pages. Choose Deploy from a branch. Use `main` and `/docs`.
-3. Set the custom domain to `yes-its-a-problem.iamwonderingif.com`.
+3. Set the custom domain to `yes-its-a-problem.iamwonderingif.com`. `docs/CNAME` already contains it.
 4. In Cloudflare, create a CNAME record for `yes-its-a-problem` with `<owner>.github.io` as the value. Set it to DNS only.
 5. Enable Enforce HTTPS.
 

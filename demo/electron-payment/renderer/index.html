@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="ja">
+<html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -9,7 +9,7 @@
 <body>
   <header class="site-header">
     <div class="wrap header-row">
-      <div class="bank-name" data-i18n="bankName">空手形銀行</div>
+      <div class="bank-name" data-i18n="bankName">Karategata Banking Corporation</div>
       <div class="lang" role="group" aria-label="Language">
         <button id="lang-ja" class="lang-btn">日本語</button>
         <button id="lang-en" class="lang-btn">English</button>
@@ -18,37 +18,37 @@
   </header>
 
   <div class="demo-bar"><div class="wrap" data-i18n="ribbon">PoC</div></div>
-  <div class="poc-bar"><div class="wrap" data-i18n="pocNotice">空手形銀行は架空の銀行です。実際の振込は行われません。</div></div>
+  <div class="poc-bar"><div class="wrap" data-i18n="pocNotice">Karategata Banking is fictional. No real transfer is made.</div></div>
 
   <main class="wrap">
-    <h1 id="transfer-title" data-i18n="paymentTitle">振込内容</h1>
+    <h1 id="transfer-title" data-i18n="paymentTitle">Transfer details</h1>
 
     <section id="danger" class="notice danger hidden" role="alert">
-      <p class="danger-line" data-i18n="dangerMismatch">危険: 送金先、口座、金額のいずれかが振込内容と一致しません。</p>
+      <p class="danger-line" data-i18n="dangerMismatch">DANGER: The payee, account, or amount does not match the expected values.</p>
     </section>
 
     <section id="safe" class="notice safe hidden" role="status">
-      <p data-i18n="safeBody">安全: 証明書の検証に失敗したため、接続は確立されませんでした。</p>
+      <p data-i18n="safeBody">SAFE: Certificate verification failed, so the connection was not established.</p>
     </section>
 
     <section class="transfer" aria-labelledby="transfer-title">
       <dl class="kv">
-        <dt data-i18n="payee">送金先</dt><dd id="expected-payee">Karategata Demo Shop</dd>
-        <dt data-i18n="account">口座</dt><dd id="expected-account">KBC-0001</dd>
-        <dt data-i18n="amount">金額</dt><dd><span id="expected-amount">¥1,000</span> <small data-i18n="amountUsd">(約 10 USD)</small></dd>
+        <dt data-i18n="payee">Payee</dt><dd id="expected-payee">Karategata Demo Shop</dd>
+        <dt data-i18n="account">Account</dt><dd id="expected-account">KBC-0001</dd>
+        <dt data-i18n="amount">Amount</dt><dd><span id="expected-amount">¥1,000</span> <small data-i18n="amountUsd">(about USD 10)</small></dd>
       </dl>
       <div class="actions">
-        <button id="quote-btn" type="button" class="primary" data-i18n="quoteBtn">内容を確認</button>
-        <button id="pay-btn" type="button" disabled data-i18n="payBtn">送金する</button>
+        <button id="quote-btn" type="button" class="primary" data-i18n="quoteBtn">Review</button>
+        <button id="pay-btn" type="button" disabled data-i18n="payBtn">Send</button>
       </div>
       <p id="status" class="status" aria-live="polite"></p>
 
       <div id="received" class="received hidden">
-        <h2 data-i18n="receivedTitle">受信した内容</h2>
+        <h2 data-i18n="receivedTitle">Received</h2>
         <dl class="kv">
-          <dt data-i18n="payee">送金先</dt><dd id="recv-payee">-</dd>
-          <dt data-i18n="account">口座</dt><dd id="recv-account">-</dd>
-          <dt data-i18n="amount">金額</dt><dd id="recv-amount">-</dd>
+          <dt data-i18n="payee">Payee</dt><dd id="recv-payee">-</dd>
+          <dt data-i18n="account">Account</dt><dd id="recv-account">-</dd>
+          <dt data-i18n="amount">Amount</dt><dd id="recv-amount">-</dd>
         </dl>
       </div>
     </section>

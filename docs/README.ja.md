@@ -8,7 +8,7 @@
 
 1. リポジトリを GitHub に push する。
 2. Settings の Pages を開き、Source で Deploy from a branch を選ぶ。ブランチは `main`、フォルダは `/docs`。
-3. カスタムドメインに `yes-its-a-problem.iamwonderingif.com` を設定する。
+3. カスタムドメインに `yes-its-a-problem.iamwonderingif.com` を設定する。`docs/CNAME` に設定済み。
 4. Cloudflare で `yes-its-a-problem` の CNAME レコードを作り、値に `<owner>.github.io` を指定する。DNS only にする。
 5. Enforce HTTPS を有効にする。
 

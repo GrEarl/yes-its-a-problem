@@ -22,7 +22,7 @@ CLI の表示は英語です。manifest とレジストリが提供する公開�
       --url https://pkg.v.lab.yes-its-a-problem.iamwonderingif.com:9445 \
       --connect 127.0.0.1:9445
 
-実行環境のトラストストアが偽造チェーンを受理すると、2 行の警告、PoC である旨の補足、`Signature verification passed.` を表示します。最初の 2 行は PoC のシナリオで、3 行目はクライアント自身が DNS を確認しないことを示します。拒否した場合は `BLOCKED: TLS certificate verification failed.` と表示します。結果はクライアントのコードではなく実行環境に依存します。
+実行環境のトラストストアが偽造チェーンを受理すると、シナリオの警告、PoC である旨の補足、`Signature verification passed.` を表示します。警告と補足は、クライアント自身が DNS を確認しないことを示します。拒否した場合は `SAFE: TLS certificate verification failed; the connection was blocked and no package was installed.` と表示します。結果はクライアントのコードではなく実行環境に依存します。
 
 ## ビルド
 
