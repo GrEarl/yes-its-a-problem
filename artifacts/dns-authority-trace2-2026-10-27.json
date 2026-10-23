@@ -1,0 +1,25 @@
+{
+  "observed_at_utc": "2026-10-26T17:50:53Z..17:50:55Z",
+  "scope": "Bounded ordinary DNS queries only; independent repeat of the 2026-10-24 06:34 JST trace (adversarial-review O10: the original had no raw capture and was never repeated). Raw dig output: artifacts/dns-authority-trace2-2026-10-27.raw.txt",
+  "observations": {
+    "T3_T4_referral_repeatable": "ns.lavoscore.org (authority of alice.poc.debiru.net) returns, for blog.alice.poc.debiru.net A (RD off), a REFERRAL with AUTHORITY NS ns-33.awsdns-04.com and ADDITIONAL A ns-33.awsdns-04.com -> 157.112.149.243. Repeatable 2/2 within 2 seconds. The NS target is out-of-bailiwick (awsdns-04.com is not under alice.poc.debiru.net) and the ADDITIONAL A contradicts the real A of that NS name (205.251.192.33).",
+    "T5_true_authority": "Directly querying the independently reached authority 205.251.192.33 (real A of ns-33.awsdns-04.com) for blog.alice.poc.debiru.net A returns 162.43.9.153 (aa).",
+    "T6_additional_endpoint": "Directly querying the referral-ADDITIONAL-supplied endpoint 157.112.149.243 (PTR ns1.static.ne.jp) for the SAME name returns 85.131.199.2 (aa). Two authoritative servers disagree for one name; which answer a client gets depends on which endpoint the resolver reached.",
+    "T7_ptr": "157.112.149.243 PTR = ns1.static.ne.jp (the PoC author's own host; O3: the emitter and the fake endpoint are attacker-controlled — cross-tenant emission remains unproven).",
+    "T8_trace_local_iterator": "dig +trace (local iteration) received the same referral from ns.lavoscore.org but did NOT use the ADDITIONAL address: it re-resolved ns-33.awsdns-04.com and reached 2600:9000:5300:2100::1, obtaining 162.43.9.153. Contrast: 1.1.1.1's recursive answer is 85.131.199.2 (4/4 rounds, artifacts/dns-reprobe2-2026-10-27.json) — consistent with 1.1.1.1 using the ADDITIONAL-supplied endpoint at resolution time while a strict iterator re-resolves the NS name."
+  },
+  "status": {
+    "evidenced": [
+      "A referral carrying an out-of-bailiwick NS target and an unrelated ADDITIONAL A contradicting the real A is emitted by a zone authority (repeatable, raw-captured, 2026-10-27)",
+      "The two endpoints return different authoritative answers for one name (raw-captured)",
+      "1.1.1.1 resolves the name via the ADDITIONAL-endpoint answer (repeatable 4/4 + 2026-10-24 evidence); Google/Quad9/OpenDNS return the true-authority answer",
+      "Public resolvers do not return the unrelated ADDITIONAL A as a cached answer for the NS name (0/4, primed methodology, artifacts/dns-reprobe2-2026-10-27.json)"
+    ],
+    "unevidenced": [
+      "Cross-tenant emission by a legitimate provider (gap B — testkit assigned to vectors-stats/task-8)",
+      "Any resolver caching the unrelated ADDITIONAL (0/4 so far)",
+      "Steering for names other than blog.alice.poc.debiru.net (fresh-name control returns NXDOMAIN)",
+      "End-to-end DNS+TLS on one path (TLS runs pinned resolution via host-resolver-rules)"
+    ]
+  }
+}

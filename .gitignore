@@ -1,0 +1,20 @@
+# Private material and local evidence; never publish
+secrets/
+*.key.pem
+*.key
+*.key.hex
+*.log
+leaf/
+__pycache__/
+*.pyc
+.env
+dist/
+node_modules/
+.agents/
+emudhra-dns-mitm-poc/
+artifacts/chains/
+.DS_Store
+# Local deployment home (contains SSH key material); never publish
+.deploy-home/
+# Local pre-rewrite archive of removed material; never publish
+.local-archive/

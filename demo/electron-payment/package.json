@@ -1,0 +1,51 @@
+{
+  "name": "karategata-banking-demo",
+  "version": "0.1.1",
+  "description": "Karategata Banking Corporation / 空手形銀行 (KBC). Electron payment demo for the yes-its-a-problem PoC.",
+  "main": "main.js",
+  "private": true,
+  "devDependencies": {
+    "electron-builder": "^26.0.12"
+  },
+  "build": {
+    "appId": "com.example.karategata.banking.demo",
+    "productName": "Karategata Banking",
+    "files": [
+      "main.js",
+      "preload.js",
+      "update-policy.js",
+      "renderer/**/*"
+    ],
+    "extraResources": [
+      {
+        "from": "../../LICENSE",
+        "to": "LICENSE.yes-its-a-problem.txt"
+      }
+    ],
+    "directories": {
+      "output": "dist"
+    },
+    "mac": {
+      "target": [
+        "dmg",
+        "zip"
+      ],
+      "identity": "-",
+      "category": "public.app-category.finance"
+    },
+    "win": {
+      "target": [
+        "nsis",
+        "zip"
+      ]
+    },
+    "linux": {
+      "target": [
+        "AppImage"
+      ],
+      "category": "Finance"
+    }
+  },
+  "author": "yes-its-a-problem",
+  "license": "MIT"
+}

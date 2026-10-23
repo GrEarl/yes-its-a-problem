@@ -1,0 +1,40 @@
+{
+  "observed_at_utc": "2026-10-27T06:12:33Z..06:12:36Z",
+  "question": "Is 1.1.1.1's divergence per-REFERRAL (H1: the unrelated ADDITIONAL is used as the delegation target for the whole delegated subtree) or name-specific (H2)? (final-verdict section 3, O1-fork)",
+  "raw_evidence": "artifacts/dns-disc-2026-10-27.raw.txt",
+  "method": "Query names UNDER the forged-referral delegation (blog.alice.poc.debiru.net -> external NS ns-33.awsdns-04.com + ADDITIONAL A 157.112.149.243) that were never queried before, plus sibling/control names outside that delegation, on 1.1.1.1 and 8.8.8.8. Ordinary bounded queries.",
+  "results": {
+    "names_under_forged_delegation": {
+      "tested": [
+        "www.blog.alice.poc.debiru.net",
+        "disc1.blog.alice.poc.debiru.net",
+        "disc2.blog.alice.poc.debiru.net"
+      ],
+      "1.1.1.1": "NXDOMAIN with SOA MNAME ns1.static.ne.jp / RNAME root.static.ne.jp for blog.alice.poc.debiru.net — i.e. the negative answer came from the ADDITIONAL-supplied endpoint (157.112.149.243, PTR ns1.static.ne.jp), not from the real authority",
+      "8.8.8.8": "NXDOMAIN without the fake zone's SOA (see raw; authority section empty/different)",
+      "conclusion": "1.1.1.1 walked the forged referral for EVERY name under the delegation, including negative (NXDOMAIN) paths. Combined with the blog-name answer case (85.131.199.2), the divergence is DELEGATION-LEVEL (per-referral), not name-specific."
+    },
+    "controls_outside_delegation": {
+      "tested": [
+        "blog2.alice.poc.debiru.net",
+        "www.alice.poc.debiru.net"
+      ],
+      "result": "NXDOMAIN with SOA ns.lavoscore.org on both resolvers — no divergence outside the forged delegation"
+    },
+    "true_reference": {
+      "tested": [
+        "blog.bob.poc.debiru.net",
+        "www.blog.bob.poc.debiru.net"
+      ],
+      "result": "blog.bob resolves to 162.43.9.153 on BOTH resolvers (the TRUE server per the author's published description); no divergence"
+    }
+  },
+  "hypothesis_status": {
+    "H1_additional_as_delegation_target": "SUPPORTED — divergence applies to the whole delegated subtree (answer + negative paths) at 1.1.1.1",
+    "H2_name_specific_internal_entry": "NOT SUPPORTED by this experiment",
+    "residual": "Mechanism still unidentified at implementation level (why only 1.1.1.1; exact code path). The lab matrix's 10 RE-RESOLVE-REAL cells were stub-mediated and did not exercise this iterative path (final-verdict section 3) — lab-matrix is re-running P3 with a non-pre-seeded out-of-bailiwick NS target."
+  },
+  "claim_corrections": {
+    "supersedes": "The 'not generalized to arbitrary names' correction in artifacts/dns-reprobe2-2026-10-27.json and downstream docs was itself based on a flawed control: fresh random names were OUTSIDE the blog delegation (under alice.poc.debiru.net directly), so they never walked the forged referral. The correct statement: steering applies to all names under the forged delegation (answer case blog; negative case www/disc1/disc2 via the fake endpoint's SOA), and does not apply outside it (controls)."
+  }
+}

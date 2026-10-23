@@ -1,0 +1,134 @@
+{
+  "checked_at_utc": "2026-10-23T21:24:40.015446+00:00",
+  "scope": "Six ordinary A lookups for the author-published PoC and its two reference hosts. No cache flush, randomized names, scans, or system DNS configuration changes.",
+  "queries": [
+    {
+      "resolver": "1.1.1.1",
+      "name": "blog.alice.poc.debiru.net",
+      "transport": "udp",
+      "command": [
+        "dig",
+        "+time=4",
+        "+tries=1",
+        "+noall",
+        "+comments",
+        "+answer",
+        "+authority",
+        "+additional",
+        "@1.1.1.1",
+        "blog.alice.poc.debiru.net",
+        "A"
+      ],
+      "exit_code": 0,
+      "stdout": ";; Got answer:\n;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 24310\n;; flags: qr rd ra; QUERY: 1, ANSWER: 1, AUTHORITY: 0, ADDITIONAL: 1\n\n;; OPT PSEUDOSECTION:\n; EDNS: version: 0, flags:; udp: 1232\n;; ANSWER SECTION:\nblog.alice.poc.debiru.net. 3600\tIN\tA\t85.131.199.2\n\n",
+      "stderr": ""
+    },
+    {
+      "resolver": "1.1.1.1",
+      "name": "blog.alice.poc.debiru.net",
+      "transport": "tcp",
+      "command": [
+        "dig",
+        "+time=4",
+        "+tries=1",
+        "+noall",
+        "+comments",
+        "+answer",
+        "+authority",
+        "+additional",
+        "+tcp",
+        "@1.1.1.1",
+        "blog.alice.poc.debiru.net",
+        "A"
+      ],
+      "exit_code": 0,
+      "stdout": ";; Got answer:\n;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 34049\n;; flags: qr rd ra; QUERY: 1, ANSWER: 1, AUTHORITY: 0, ADDITIONAL: 1\n\n;; OPT PSEUDOSECTION:\n; EDNS: version: 0, flags:; udp: 1232\n;; ANSWER SECTION:\nblog.alice.poc.debiru.net. 3600\tIN\tA\t85.131.199.2\n\n",
+      "stderr": ""
+    },
+    {
+      "resolver": "8.8.8.8",
+      "name": "blog.alice.poc.debiru.net",
+      "transport": "udp",
+      "command": [
+        "dig",
+        "+time=4",
+        "+tries=1",
+        "+noall",
+        "+comments",
+        "+answer",
+        "+authority",
+        "+additional",
+        "@8.8.8.8",
+        "blog.alice.poc.debiru.net",
+        "A"
+      ],
+      "exit_code": 0,
+      "stdout": ";; Got answer:\n;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 24024\n;; flags: qr rd ra; QUERY: 1, ANSWER: 1, AUTHORITY: 0, ADDITIONAL: 1\n\n;; OPT PSEUDOSECTION:\n; EDNS: version: 0, flags:; udp: 512\n;; ANSWER SECTION:\nblog.alice.poc.debiru.net. 60\tIN\tA\t162.43.9.153\n\n",
+      "stderr": ""
+    },
+    {
+      "resolver": "8.8.8.8",
+      "name": "blog.alice.poc.debiru.net",
+      "transport": "tcp",
+      "command": [
+        "dig",
+        "+time=4",
+        "+tries=1",
+        "+noall",
+        "+comments",
+        "+answer",
+        "+authority",
+        "+additional",
+        "+tcp",
+        "@8.8.8.8",
+        "blog.alice.poc.debiru.net",
+        "A"
+      ],
+      "exit_code": 0,
+      "stdout": ";; Got answer:\n;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 3369\n;; flags: qr rd ra; QUERY: 1, ANSWER: 1, AUTHORITY: 0, ADDITIONAL: 1\n\n;; OPT PSEUDOSECTION:\n; EDNS: version: 0, flags:; udp: 512\n;; ANSWER SECTION:\nblog.alice.poc.debiru.net. 60\tIN\tA\t162.43.9.153\n\n",
+      "stderr": ""
+    },
+    {
+      "resolver": "8.8.8.8",
+      "name": "blog.bob.poc.debiru.net",
+      "transport": "udp",
+      "command": [
+        "dig",
+        "+time=4",
+        "+tries=1",
+        "+noall",
+        "+comments",
+        "+answer",
+        "+authority",
+        "+additional",
+        "@8.8.8.8",
+        "blog.bob.poc.debiru.net",
+        "A"
+      ],
+      "exit_code": 0,
+      "stdout": ";; Got answer:\n;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 54991\n;; flags: qr rd ra; QUERY: 1, ANSWER: 1, AUTHORITY: 0, ADDITIONAL: 1\n\n;; OPT PSEUDOSECTION:\n; EDNS: version: 0, flags:; udp: 512\n;; ANSWER SECTION:\nblog.bob.poc.debiru.net. 60\tIN\tA\t162.43.9.153\n\n",
+      "stderr": ""
+    },
+    {
+      "resolver": "8.8.8.8",
+      "name": "debiru.static.jp",
+      "transport": "udp",
+      "command": [
+        "dig",
+        "+time=4",
+        "+tries=1",
+        "+noall",
+        "+comments",
+        "+answer",
+        "+authority",
+        "+additional",
+        "@8.8.8.8",
+        "debiru.static.jp",
+        "A"
+      ],
+      "exit_code": 0,
+      "stdout": ";; Got answer:\n;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 2570\n;; flags: qr rd ra; QUERY: 1, ANSWER: 1, AUTHORITY: 0, ADDITIONAL: 1\n\n;; OPT PSEUDOSECTION:\n; EDNS: version: 0, flags:; udp: 512\n;; ANSWER SECTION:\ndebiru.static.jp.\t3600\tIN\tA\t85.131.199.2\n\n",
+      "stderr": ""
+    }
+  ]
+}

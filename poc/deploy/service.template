@@ -1,0 +1,35 @@
+[Unit]
+Description=Owned-domain lab {role} {kind}
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=simple
+User=yip
+Group=yip
+WorkingDirectory=/opt/yip
+ExecStart={command}
+Restart=on-failure
+RestartSec=5s
+UMask=0077
+AmbientCapabilities=CAP_NET_BIND_SERVICE
+CapabilityBoundingSet=CAP_NET_BIND_SERVICE
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+PrivateDevices=yes
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectControlGroups=yes
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+RestrictSUIDSGID=yes
+LockPersonality=yes
+MemoryDenyWriteExecute=yes
+ReadOnlyPaths=/opt/yip /etc/yip /var/lib/yip
+# The applications do not receive --log. Journal contains lifecycle/errors only.
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

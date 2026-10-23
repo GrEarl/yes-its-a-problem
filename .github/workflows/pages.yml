@@ -1,0 +1,51 @@
+# Deploy the static site in docs/ to GitHub Pages through GitHub Actions.
+#
+# The user publishes Pages via the Actions path; the custom domain
+# yes-its-a-problem.iamwonderingif.com is carried by docs/CNAME, which is part
+# of the uploaded artifact root (upload-pages-artifact path: docs).
+# The site is static (HTML/JS); .nojekyll is already present in docs/.
+name: pages
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Verify custom-domain CNAME is in the artifact source
+        run: test "$(tr -d '[:space:]' < docs/CNAME)" = "yes-its-a-problem.iamwonderingif.com"
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

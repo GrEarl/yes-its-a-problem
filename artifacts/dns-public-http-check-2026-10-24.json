@@ -1,0 +1,62 @@
+{
+  "checked_at_utc": "2026-10-23T21:32:27.451646+00:00",
+  "scope": "Two direct HTTPS GET requests to the published PoC host, one per observed A address. --resolve kept Host/SNI on the published name; normal certificate verification was enabled; redirects were not followed; no DNS or host configuration changed.",
+  "requests": [
+    {
+      "ip": "85.131.199.2",
+      "command": [
+        "curl",
+        "--silent",
+        "--show-error",
+        "--connect-timeout",
+        "5",
+        "--max-time",
+        "12",
+        "--resolve",
+        "blog.alice.poc.debiru.net:443:85.131.199.2",
+        "--dump-header",
+        "-",
+        "--output",
+        "-",
+        "--write-out",
+        "\n__RESULT__ http=%{http_code} remote=%{remote_ip} verify=%{ssl_verify_result} redirect=%{redirect_url}\n",
+        "https://blog.alice.poc.debiru.net/"
+      ],
+      "exit_code": 0,
+      "response_headers": "HTTP/2 200 \nserver: nginx\ndate: Fri, 23 Oct 2026 21:32:27 GMT\ncontent-type: text/html\ncontent-length: 264\nlast-modified: Wed, 07 Oct 2026 14:48:54 GMT\netag: \"108-65d4136d67a8a\"\naccept-ranges: bytes",
+      "body_bytes": 264,
+      "body_sha256": "593939904af2ae6e1e49944e19835ffd54a1ddd9214036bda773515baedfc46c",
+      "body_preview": "<b style=\"background: #f00\">FAKE Web Server</b> debiru.static.jp for \"blog.alice.poc.debiru.net\" via @ns1.static.ne.jp (157.112.149.243)\n<script>if (location.hostname === 'blog.alice.poc.debiru.net') navigator.sendBeacon('https://dnslog.lavoscore.org/');</script>\n",
+      "curl_summary": "http=200 remote=85.131.199.2 verify=0 redirect=",
+      "stderr": ""
+    },
+    {
+      "ip": "162.43.9.153",
+      "command": [
+        "curl",
+        "--silent",
+        "--show-error",
+        "--connect-timeout",
+        "5",
+        "--max-time",
+        "12",
+        "--resolve",
+        "blog.alice.poc.debiru.net:443:162.43.9.153",
+        "--dump-header",
+        "-",
+        "--output",
+        "-",
+        "--write-out",
+        "\n__RESULT__ http=%{http_code} remote=%{remote_ip} verify=%{ssl_verify_result} redirect=%{redirect_url}\n",
+        "https://blog.alice.poc.debiru.net/"
+      ],
+      "exit_code": 0,
+      "response_headers": "HTTP/1.1 200 OK\nDate: Fri, 23 Oct 2026 21:32:27 GMT\nServer: Apache\nUpgrade: h2\nConnection: Upgrade\nLast-Modified: Tue, 06 Oct 2026 14:11:35 GMT\nETag: \"83-65d2c938f6ba2\"\nAccept-Ranges: bytes\nContent-Length: 131\nVary: Accept-Encoding\nContent-Type: text/html",
+      "body_bytes": 131,
+      "body_sha256": "bf8c6987bcccb4c0e8b99bdb8cbbb5e230bfe59fd98d5af28c1fb3a984b63eb0",
+      "body_preview": "<b style=\"background: #6f6\">TRUE Web Server</b> lavoscore.org for \"blog.alice.poc.debiru.net\" via @ns.lavoscore.org (162.43.9.153)\n",
+      "curl_summary": "http=200 remote=162.43.9.153 verify=0 redirect=",
+      "stderr": ""
+    }
+  ]
+}

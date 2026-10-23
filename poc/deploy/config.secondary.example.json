@@ -1,0 +1,57 @@
+{
+  "domain": "yes-its-a-problem.iamwonderingif.com",
+  "zones": {
+    "provider": "lab.yes-its-a-problem.iamwonderingif.com",
+    "child": "v.lab.yes-its-a-problem.iamwonderingif.com"
+  },
+  "child_ns": {
+    "name": "ns-child.yes-its-a-problem.iamwonderingif.com",
+    "true_address": null,
+    "fake_address": null
+  },
+  "hidden_primary": {
+    "host": "ns1.hidden.yes-its-a-problem.iamwonderingif.com",
+    "ip": null,
+    "port": 53
+  },
+  "secondary": {
+    "adapter": "buddyns",
+    "account": null,
+    "api_token": null,
+    "master_ip": null,
+    "tsig": null,
+    "axfr_source_ips": [],
+    "ns_names": [],
+    "ns_ips": []
+  },
+  "tunnels": {
+    "true": {
+      "name": "yip-true",
+      "token": null,
+      "credentials_file": null,
+      "hostname": "true.yes-its-a-problem.iamwonderingif.com"
+    },
+    "fake": {
+      "name": "yip-fake",
+      "token": null,
+      "credentials_file": null,
+      "hostname": "fake.yes-its-a-problem.iamwonderingif.com"
+    }
+  },
+  "local": {
+    "primary_port": 5353,
+    "true_dns_port": 5354,
+    "fake_dns_port": 5355,
+    "true_https_port": 8443,
+    "fake_https_port": 8444,
+    "normal_fullchain": null,
+    "normal_key": null,
+    "forged_fullchain": null,
+    "forged_key": null
+  },
+  "checklist": {
+    "own_domains_confirmed": false,
+    "tos_reviewed": false,
+    "notify_provider": true
+  }
+}

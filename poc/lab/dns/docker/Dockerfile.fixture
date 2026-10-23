@@ -1,0 +1,8 @@
+FROM alpine:3.21
+# Fixture + probe image for the acceptance matrix: python3 with the vendored
+# dnslib from poc/vendor and the lab_dns.py / udp_sink.py / probe_client.py
+# scripts (build context is poc/).
+RUN apk add --no-cache python3
+COPY vendor /vendor
+COPY lab/dns/lab_dns.py lab/dns/udp_sink.py lab/dns/probe_client.py /lab/
+ENV PYTHONPATH=/vendor

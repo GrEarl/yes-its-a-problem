@@ -1,0 +1,27 @@
+{
+  "observed_at_utc": "2026-10-26T17:48:36Z..17:48:40Z",
+  "supersedes": "artifacts/dns-reprobe-2026-10-27.json cache-acceptance test (methodologically flawed; see corrections there)",
+  "methodology": "PRIMED cache-acceptance test fixing adversarial-review objection O1: for each public resolver, first WALK the poisoned referral with a fresh random name under alice.poc.debiru.net (or the blog name), then IMMEDIATELY query ns-33.awsdns-04.com A. Three random-name rounds plus one blog-prime round per resolver, within the same second as the prime. This ordering ensures the resolver has just seen the referral carrying the unrelated ADDITIONAL A 157.112.149.243 before the cache test, so a negative result is meaningful (the previous run queried the NS name BEFORE priming and after the 48h TTL had expired).",
+  "raw_evidence": "artifacts/dns-reprobe2-2026-10-27.raw.txt",
+  "results": {
+    "cache_acceptance": {
+      "resolvers_tested": [
+        "1.1.1.1",
+        "8.8.8.8",
+        "9.9.9.9",
+        "208.67.222.222"
+      ],
+      "rounds_per_resolver": 4,
+      "poisoned_A_returned": 0,
+      "true_A_returned": "205.251.192.33 in 16/16 probe queries",
+      "verdict": "NEGATIVE on all four resolvers under correctly-primed methodology: the unrelated ADDITIONAL A is not returned as a cached answer for the NS hostname. Persistent cache poisoning remains NOT demonstrated; this negative is now methodologically valid (the test can fail and did not).",
+      "caveat": "public resolvers are multi-backend; 1.1.1.1's observed TTLs ranged 170765-172800 across rounds (full TTL most rounds but not all), so backend sharding cannot be excluded — the negative is per-answer, not per-cache"
+    },
+    "resolution_divergence": {
+      "blog_name": "1.1.1.1 returned 85.131.199.2 on every occasion the blog name was queried (2026-10-24 UDP+TCP per dns-public-check-2026-10-24.json; 2026-10-27 reprobe1; 2026-10-27 reprobe2 blog round — exactly ONE blog query per resolver per session, NOT 4/4 rounds); 8.8.8.8, 9.9.9.9, 208.67.222.222 returned 162.43.9.153 on every such occasion",
+      "fresh_name": "rand-*.alice.poc.debiru.net returned NXDOMAIN with SOA from ns.lavoscore.org on all resolvers — but these names are OUTSIDE the forged delegation and never walked the referral; this control does NOT test delegation-level steering (see artifacts/dns-disc-2026-10-27.json, which supersedes the generalization formerly stated here)",
+      "verdict": "The 2026-10-24 divergence is repeatable for the blog name: 1.1.1.1 resolves via the referral-ADDITIONAL-supplied endpoint's answer (85.131.199.2), the other three via the independently reached authority (162.43.9.153). UPDATE 2026-10-27T06:12Z (artifacts/dns-disc-2026-10-27.json): the former 'not generalized to arbitrary names' caveat is SUPERSEDED — never-before-queried names UNDER the forged delegation (www/disc1/disc2.blog.alice...) also come back from the ADDITIONAL-supplied endpoint (NXDOMAIN carrying that endpoint's zone SOA ns1.static.ne.jp), so the steering is DELEGATION-LEVEL (H1 supported), applying to the whole delegated subtree including negative answers, and absent outside it (controls)."
+    }
+  },
+  "impact_framing_delta": "Two separate claims must be reported as measured: (a) cached-and-answerable: 0/4 (now valid); (b) used-for-resolution: delegation-level at 1.1.1.1 (blog answer case + negative answers carrying the fake endpoint's SOA for never-queried names under the delegation), 0/3 for the other resolvers. Do not generalize beyond the delegation; the mechanism at implementation level remains unidentified (final-verdict section 3)."
+}

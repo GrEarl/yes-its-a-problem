@@ -1,0 +1,146 @@
+name: release
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  electron:
+    name: electron ${{ matrix.flavor }} ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-latest
+            flavor: legacy
+            electron: "36.9.5"
+          - os: macos-latest
+            flavor: hardened
+            electron: "45.0.0"
+          - os: ubuntu-latest
+            flavor: legacy
+            electron: "36.9.5"
+          - os: ubuntu-latest
+            flavor: hardened
+            electron: "45.0.0"
+          - os: windows-latest
+            flavor: legacy
+            electron: "36.9.5"
+          - os: windows-latest
+            flavor: hardened
+            electron: "45.0.0"
+    defaults:
+      run:
+        working-directory: demo/electron-payment
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Check release tag
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: node -e "const expected = 'v' + require('./package.json').version; if (process.env.GITHUB_REF_NAME !== expected) throw new Error('Expected release tag ' + expected);"
+
+      - name: Install build dependencies
+        run: npm ci --no-audit --no-fund
+
+      - name: Build
+        run: >-
+          npx electron-builder --publish never
+          --config.electronVersion=${{ matrix.electron }}
+          --config.appId=com.example.karategata.banking.demo.${{ matrix.flavor }}
+          --config.productName="Karategata Banking ${{ matrix.flavor }}"
+          --config.extraMetadata.name=karategata-banking-demo-${{ matrix.flavor }}
+
+      - name: Prefix artifact names
+        shell: bash
+        run: |
+          node -e "const fs=require('fs'); for (const f of fs.readdirSync('dist')) fs.renameSync('dist/'+f, 'dist/'+process.env.PREFIX+'-'+f);"
+        env:
+          PREFIX: ${{ matrix.os }}-${{ matrix.flavor }}
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: electron-${{ matrix.flavor }}-${{ matrix.os }}
+          retention-days: 1
+          if-no-files-found: error
+          path: |
+            demo/electron-payment/dist/*.dmg
+            demo/electron-payment/dist/*.zip
+            demo/electron-payment/dist/*.AppImage
+            demo/electron-payment/dist/*.exe
+
+  kirimochi:
+    name: kirimochi package
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Check release tag
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: |
+          version="$(sed -n 's/^VERSION = "\(.*\)"/\1/p' demo/fake-pkg/src/kirimochi.py)"
+          if [ "v$version" != "$GITHUB_REF_NAME" ]; then
+            echo "Expected release tag v$version (kirimochi.py VERSION) but got $GITHUB_REF_NAME" >&2
+            exit 1
+          fi
+
+      - name: Build package
+        run: |
+          python -X pycache_prefix="$RUNNER_TEMP/pycache" -m py_compile demo/fake-pkg/src/__main__.py demo/fake-pkg/src/kirimochi.py
+          mkdir -p dist
+          KIRIMOCHI_STAGE="$(mktemp -d)"
+          cp demo/fake-pkg/src/__main__.py demo/fake-pkg/src/kirimochi.py LICENSE "$KIRIMOCHI_STAGE/"
+          python -m zipapp "$KIRIMOCHI_STAGE" -p "/usr/bin/env python3" -o dist/kirimochi.pyz
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: kirimochi
+          retention-days: 1
+          if-no-files-found: error
+          path: dist/kirimochi.pyz
+
+  release:
+    name: publish release
+    needs: [electron, kirimochi]
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          merge-multiple: true
+
+      - name: List files
+        run: find artifacts -maxdepth 2 -type f -print
+
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: artifacts/**
+          fail_on_unmatched_files: true
+          prerelease: ${{ contains(github.ref_name, '-') }}
+          body: |
+            Karategata Banking and Kirimochi are fictional; no
+            real transfer or installation is made.
+
+            - Karategata Banking Corporation / 空手形銀行 (KBC). Electron payment PoC.
+              legacy: Electron 36.9.5. hardened: Electron 45.0.0.
+            - Kirimochi. English-only package manager PoC.
+              Fetches a manifest and verifies its signature with a registry-supplied, unpinned key.
+              Requires Python 3 and OpenSSL on PATH. Start with `python3 kirimochi.pyz --help`.
+
+            [Source and local setup](https://github.com/${{ github.repository }}/tree/${{ github.ref_name }})

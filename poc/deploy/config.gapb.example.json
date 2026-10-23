@@ -1,0 +1,32 @@
+{
+  "tzone": "t.example",
+  "victim_domain": "yourexample.net",
+  "hidden_primary_ip": null,
+  "primary_host": "ns1.hidden.yourexample.net",
+  "addresses": {
+    "out_of_zone_a": "192.0.2.66",
+    "sub_delegation": "203.0.113.10",
+    "www": "203.0.113.11"
+  },
+  "provider": {
+    "adapter": "buddyns",
+    "account": null,
+    "api_token": null,
+    "tsig": null,
+    "axfr_source_ips": [],
+    "ns_names": [],
+    "ns_ips": [],
+    "ns_port": 53
+  },
+  "tenant_b": {
+    "account": null,
+    "ns_name": "ns.victim-own.yourexample.net",
+    "ns_ips": [],
+    "victim_real_ip": null
+  },
+  "checklist": {
+    "own_names_confirmed": false,
+    "tos_reviewed": false,
+    "notify_vendor": true
+  }
+}

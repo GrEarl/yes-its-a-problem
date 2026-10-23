@@ -1,0 +1,5 @@
+FROM alpine:3.21
+# Resolver packages for the acceptance-matrix containers; the daemon
+# configuration is mounted at run time by probe_matrix.py.
+ARG PKGS
+RUN apk add --no-cache ${PKGS}

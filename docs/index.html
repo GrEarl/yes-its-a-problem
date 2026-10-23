@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Yes, it's a problem</title>
+  <meta name="description" content="A DNS delegation-response and TLS certificate lab.">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="container">
+
+  <p class="langline">
+    <button id="lang-ja" class="lang-btn">日本語</button> /
+    <button id="lang-en" class="lang-btn">English</button>
+  </p>
+
+  <h1 data-i18n="siteName">Yes, it's a problem</h1>
+  <p class="sub" data-i18n="siteSub">PoC: DNS and TLS checks. Karategata Banking and Kirimochi are fictional; no real transfer or installation is made.</p>
+
+  <h2 data-i18n="checkTitle">Checks</h2>
+  <p data-i18n="checkLead">Each button sends one HTTPS request to a check endpoint. Results are shown on this page.</p>
+
+  <h3 data-i18n="dnsCheckTitle">DNS path</h3>
+  <p data-i18n="dnsCheckBody">Connects to a random subdomain over HTTPS and reports which lab server was reached. The browser does not observe the DNS queries themselves.</p>
+  <button id="dns-btn" class="btn" data-i18n="dnsCheckBtn">Check DNS</button>
+  <p id="dns-result" class="result" aria-live="polite"></p>
+
+  <h3 data-i18n="tlsCheckTitle">TLS verification</h3>
+  <p data-i18n="tlsCheckBody">The MITM host reports the classification and SHA-256 fingerprint of the leaf certificate it served. This page cannot read the browser's peer certificate directly. On connection failure, certificate rejection and network failure cannot be distinguished.</p>
+  <button id="tls-btn" class="btn" data-i18n="tlsCheckBtn">Check TLS</button>
+  <p id="tls-result" class="result" aria-live="polite"></p>
+
+  <div id="verdict" class="verdict hidden" role="status">
+    <h3 data-i18n="verdictTitle">Result</h3>
+    <p id="verdict-dns"></p>
+    <p id="verdict-tls"></p>
+    <p id="verdict-summary"></p>
+  </div>
+
+  <section class="poc">
+    <h2 data-i18n="pocTitle">About this PoC</h2>
+    <p data-i18n="pocBody">This page is a lab for DNS delegation responses and TLS certificate handling. The local DNS checks compare referrals and A records returned by controlled authoritative servers; they do not test a recursive resolver or prove a live resolver defect. The TLS check reads the server's report for a certificate signed with a recovered eMudhra intermediate CA key.</p>
+    <p data-i18n="pocBody2">The two buttons fetch HTTPS responses from separate hosts. The DNS check reports the server role reached; the TLS check displays the server's certificate report. These results do not prove that a two-stage attack succeeded on one connection. A failed fetch() does not expose the reason, so certificate rejection and connection failure cannot be distinguished.</p>
+    <p data-i18n="certStatus">The compromised intermediates have been revoked. The incident report says Firefox and Chrome block them from 17 October 2026, Microsoft platforms from 20 October, and Apple products from 22 October. Clients that do not use revocation information or Certificate Transparency may remain affected until updated. This check reports only this browser's connection and does not predict another client's result.</p>
+    <h3 data-i18n="sourcesTitle">Sources and advisories</h3>
+    <ul class="sources">
+      <li><a href="https://emudhra.we-have-a-problem.com/" target="_blank" rel="noopener noreferrer" data-i18n="sourceResearch">Original research and report (third party, reporter Wayne)</a></li>
+      <li><a href="https://emudhra.we-have-a-problem.com/proof.zip" target="_blank" rel="noopener noreferrer" data-i18n="sourceProof">Proof bundle (eight intermediate CA signatures)</a></li>
+      <li><a href="https://emudhra.we-have-a-problem.com/chains.zip" target="_blank" rel="noopener noreferrer" data-i18n="sourceChains">Published certificate chains (14 hosts)</a></li>
+      <li><a href="https://bugzilla.mozilla.org/show_bug.cgi?id=2083449" target="_blank" rel="noopener noreferrer" data-i18n="sourceMozillaBug">Mozilla incident report</a></li>
+      <li><a href="https://groups.google.com/a/mozilla.org/g/dev-security-policy/c/0R3XLJL6FuE" target="_blank" rel="noopener noreferrer" data-i18n="sourceMozillaThread">Mozilla dev-security-policy thread</a></li>
+      <li><a href="https://www.chromium.org/Home/chromium-security/crlsets/" target="_blank" rel="noopener noreferrer" data-i18n="sourceCrlsets">Chromium CRLSets</a></li>
+      <li><a href="https://emudhra.we-have-a-problem.com/#patched-os" target="_blank" rel="noopener noreferrer" data-i18n="sourcePatched">Patched versions by OS and distribution</a></li>
+    </ul>
+    <h3 data-i18n="dnsSourcesTitle">DNS observations and background</h3>
+    <p class="sources-note" data-i18n="dnsSourcesNote">The recorded public-case referral included an ADDITIONAL A record for an external nameserver. This is not RFC 9471 sibling glue. See the linked record for scope and provenance; it is separate from this lab's local checks.</p>
+    <ul class="sources">
+      <li><a href="https://github.com/GrEarl/yes-its-a-problem/blob/main/artifacts/dns-authority-trace-2026-10-24.json" target="_blank" rel="noopener noreferrer" data-i18n="sourceDnsObservation">Public DNS observation (24 October 2026, including scope and provenance)</a></li>
+      <li><a href="https://community.cloudflare.com/t/1-1-1-1-answers-wrong-a-record-when-authority-name-server-has-unrelated-addtional/966458" target="_blank" rel="noopener noreferrer" data-i18n="sourceCloudflare">Cloudflare Community: 1.1.1.1 returns a wrong A record with an unrelated ADDITIONAL</a></li>
+      <li><a href="https://www.usenix.org/system/files/usenixsecurity24-zhang-yunyi-rethinking.pdf" target="_blank" rel="noopener noreferrer" data-i18n="sourceStaleGlue">Rethinking the Security Threats of Stale DNS Glue Records (USENIX Security 2024)</a> (<a href="https://www.usenix.org/conference/usenixsecurity24/presentation/zhang-yunyi-rethinking" target="_blank" rel="noopener noreferrer" data-i18n="sourceStaleGlueTalk">USENIX Security 2024 presentation</a>)</li>
+      <li><a href="https://kb.isc.org/docs/strict-glue" target="_blank" rel="noopener noreferrer" data-i18n="sourceIscStrictGlue">ISC BIND: Operational Notification: Impact of Stricter Glue Checking</a></li>
+    </ul>
+  </section>
+
+  <h2 data-i18n="demosTitle">PoC</h2>
+  <p><a data-releases href="#" data-i18n="kbcName">Karategata Banking</a> / <a data-releases href="#" data-i18n="kiriName">Kirimochi</a></p>
+
+  <footer>
+    <p><a data-releases href="#" data-i18n="footerRepo">Releases</a></p>
+  </footer>
+
+</div>
+<script src="config.js"></script>
+<script src="i18n.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
