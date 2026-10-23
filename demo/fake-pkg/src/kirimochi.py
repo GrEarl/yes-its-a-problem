@@ -179,8 +179,7 @@ def main(argv=None):
     print("  The registry supplied both the package and the public key,")
     print("  so signature verification passed despite the untrusted source.")
     print()
-    print("Signature verification passed.")
-    print("DANGER: signature verification passed, but the registry-provided key is unpinned and the source is untrusted.")
+    print("DANGER: signature verification passed, but the registry-provided key is unpinned and the source is untrusted; no package was installed.")
     return 0
 
 
