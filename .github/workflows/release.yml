@@ -61,7 +61,12 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: electron-${{ matrix.flavor }}-${{ matrix.os }}
-          path: demo/electron-payment/dist/**
+          path: |
+            demo/electron-payment/dist/*.dmg
+            demo/electron-payment/dist/*.zip
+            demo/electron-payment/dist/*.AppImage
+            demo/electron-payment/dist/*.exe
+            demo/electron-payment/dist/*.blockmap
 
   kirimochi:
     name: kirimochi package
