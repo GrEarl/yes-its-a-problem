@@ -1,0 +1,128 @@
+name: release
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  electron:
+    name: electron ${{ matrix.flavor }} ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-latest
+            flavor: legacy
+            electron: "36.9.5"
+            config: config/legacy.json
+          - os: macos-latest
+            flavor: hardened
+            electron: "45.0.0"
+            config: config/hardened.json
+          - os: ubuntu-latest
+            flavor: legacy
+            electron: "36.9.5"
+            config: config/legacy.json
+          - os: ubuntu-latest
+            flavor: hardened
+            electron: "45.0.0"
+            config: config/hardened.json
+          - os: windows-latest
+            flavor: legacy
+            electron: "36.9.5"
+            config: config/legacy.json
+          - os: windows-latest
+            flavor: hardened
+            electron: "45.0.0"
+            config: config/hardened.json
+    defaults:
+      run:
+        working-directory: demo/electron-payment
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Install build dependencies
+        run: npm install --no-audit --no-fund
+
+      - name: Select demo config
+        run: node -e "require('fs').copyFileSync(process.argv[1], 'demo-config.json')" ${{ matrix.config }}
+
+      - name: Pin Electron version
+        run: npm install --no-save --no-audit --no-fund electron@${{ matrix.electron }}
+
+      - name: Build
+        run: npx electron-builder --publish never -c.electronVersion=${{ matrix.electron }}
+        env:
+          FLAVOR: ${{ matrix.flavor }}
+
+      - name: Prefix artifact names
+        shell: bash
+        run: |
+          node -e "const fs=require('fs'); for (const f of fs.readdirSync('dist')) fs.renameSync('dist/'+f, 'dist/'+process.env.FLAVOR+'-'+f);"
+        env:
+          FLAVOR: ${{ matrix.flavor }}
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: electron-${{ matrix.flavor }}-${{ matrix.os }}
+          path: demo/electron-payment/dist/**
+
+  kirimochi:
+    name: kirimochi package
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Build package
+        run: |
+          python -m py_compile demo/fake-pkg/src/kirimochi.py
+          mkdir -p dist
+          python -m zipapp demo/fake-pkg/src -p "/usr/bin/env python3" -o dist/kirimochi.pyz
+          (cd demo/fake-pkg && zip -r ../../dist/kirimochi-src.zip README.md src server)
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: kirimochi
+          path: dist/**
+
+  release:
+    name: publish release
+    needs: [electron, kirimochi]
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          merge-multiple: true
+
+      - name: List files
+        run: find artifacts -maxdepth 2 -type f -print
+
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: artifacts/**
+          fail_on_unmatched_files: true
+          body: |
+            Demos for the yes-its-a-problem PoC.
+
+            - Karategata Banking Corporation / 空手形銀行 (KBC). Electron payment demo.
+              legacy: Electron 36.9.5. hardened: Electron 45.0.0.
+            - Kirimochi. English-only package manager demo.
+              Fetches a manifest and verifies its signature with a registry-supplied, unpinned key.

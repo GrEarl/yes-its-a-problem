@@ -1,0 +1,19 @@
+# Private material and local evidence; never publish
+secrets/
+*.key.pem
+*.key
+*.key.hex
+*.log
+leaf/
+__pycache__/
+.env
+dist/
+node_modules/
+.agents/
+demo/electron-payment/demo-config.json
+emudhra-dns-mitm-poc/
+artifacts/chains/
+poc/vendor/**/__pycache__/
+.DS_Store
+
+artifacts/chains.zip

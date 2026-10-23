@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Yes, it's a problem</title>
+  <meta name="description" content="DNS and TLS verification.">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="container">
+
+  <p class="langline">
+    <button id="lang-ja" class="lang-btn">日本語</button> /
+    <button id="lang-en" class="lang-btn">English</button>
+  </p>
+
+  <h1 data-i18n="siteName">Yes, it's a problem</h1>
+  <p class="sub" data-i18n="siteSub">DNS と TLS の確認</p>
+
+  <h2 data-i18n="checkTitle">確認</h2>
+  <p data-i18n="checkLead">各ボタンは検証環境のエンドポイントへ HTTPS リクエストを 1 回送ります。結果はこのページ内に表示されます。</p>
+
+  <h3 data-i18n="dnsCheckTitle">DNS 経路</h3>
+  <p data-i18n="dnsCheckBody">ランダムなサブドメインを問い合わせ、リゾルバがどちらの経路に到達したかを表示します。</p>
+  <button id="dns-btn" class="btn" data-i18n="dnsCheckBtn">DNS を確認</button>
+  <p id="dns-result" class="result" aria-live="polite"></p>
+
+  <h3 data-i18n="tlsCheckTitle">TLS 検証</h3>
+  <p data-i18n="tlsCheckBody">偽造証明書を提示するホストへ接続します。受理した場合だけ結果を表示し、拒否と通信失敗は判定不能とします。</p>
+  <button id="tls-btn" class="btn" data-i18n="tlsCheckBtn">TLS を確認</button>
+  <p id="tls-result" class="result" aria-live="polite"></p>
+
+  <div id="verdict" class="verdict hidden" role="status">
+    <h3 data-i18n="verdictTitle">結果</h3>
+    <p id="verdict-text"></p>
+  </div>
+
+  <h2 data-i18n="demosTitle">デモ</h2>
+  <p><a data-releases href="#" data-i18n="kbcName">空手形銀行</a> / <a data-releases href="#" data-i18n="kiriName">Kirimochi</a></p>
+
+  <footer>
+    <p><a data-releases href="#" data-i18n="footerRepo">Releases</a></p>
+  </footer>
+
+</div>
+<script src="config.js"></script>
+<script src="i18n.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
