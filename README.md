@@ -2,6 +2,8 @@
 
 [English](README.md) | [日本語](README.ja.md)
 
+> **Beta: deployment and verification are in progress.** This is not a completed proof. Do not treat current results as confirmation until the lab, site, and clients have been fully deployed and verified.
+
 A PoC combining DNS delegation responses and TLS certificate verification. Karategata Banking and Kirimochi are fictional; no real transfer or installation is made.
 
 1. A recursive resolver uses an ADDITIONAL glue record in a delegation response. Instead of resolving the nameserver name separately, it uses the supplied address.
@@ -59,7 +61,7 @@ Certificates and private keys are written to `secrets/`. They are not part of th
 
 ## Build
 
-Push a tag such as `v0.1.0`. GitHub Actions builds the Electron legacy and hardened builds on `macos-latest`, `ubuntu-latest`, and `windows-latest` (six jobs: three OSes x two Electron versions), plus one `kirimochi.pyz`. Artifacts are macOS `dmg`/`zip`, Windows `nsis`/`zip`, and Linux `AppImage`; the Python zipapp is cross-platform. The workflow uploads them to a GitHub Release.
+For the current beta, push the tag `v0.1.0-beta.1`. A stable `v0.1.0` tag should be created only after deployment and verification are complete. GitHub Actions builds the Electron legacy and hardened builds on `macos-latest`, `ubuntu-latest`, and `windows-latest` (six jobs: three OSes x two Electron versions), plus one `kirimochi.pyz`. Artifacts are macOS `dmg`/`zip`, Windows `nsis`/`zip`, and Linux `AppImage`; the Python zipapp is cross-platform. The workflow uploads them to a GitHub Release.
 
 ## License
 

@@ -2,7 +2,7 @@
 (function () {
   const dict = {
     ja: {
-      pocNotice: "空手形銀行は架空の銀行です。実際の振込は行われません。",
+      pocNotice: "空手形銀行は架空の銀行です。実際の振込は行われません。展開と検証は途中で、現時点では Proof ではありません。",
       bankName: "空手形銀行",
       paymentTitle: "振込内容",
       payee: "送金先",
@@ -25,7 +25,7 @@
       siteLink: "PoC サイト"
     },
     en: {
-      pocNotice: "Karategata Banking is fictional. No real transfer is made.",
+      pocNotice: "Karategata Banking is fictional. No real transfer is made. Deployment and verification are in progress; this is not a completed proof.",
       bankName: "Karategata Banking Corporation",
       paymentTitle: "Transfer details",
       payee: "Payee",

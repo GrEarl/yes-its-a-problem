@@ -12,6 +12,7 @@ h2 { margin-top: 2.5rem; font-size: 1.2rem; margin-bottom: 1rem; }
 h3 { margin-top: 1.5rem; font-size: 1rem; margin-bottom: .5rem; }
 p { margin-top: 0; margin-bottom: 1rem; }
 .sub { color: #666; margin-top: -.5rem; margin-bottom: 1.5rem; }
+.status-note { margin: 0 0 2rem; padding: .5rem .75rem; border-left: 3px solid #8a5a00; background: #fff7e6; color: #5c4300; font-size: .85rem; }
 .langline { text-align: right; font-size: .85rem; margin-bottom: 2rem; }
 .lang-btn { font: inherit; font-size: .85rem; color: #0074d9; background: none; border: 0; padding: 0; cursor: pointer; text-decoration: underline; }
 .lang-btn.active { color: #111; text-decoration: none; font-weight: bold; }

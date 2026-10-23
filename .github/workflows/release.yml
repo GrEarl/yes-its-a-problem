@@ -105,9 +105,11 @@ jobs:
         with:
           files: artifacts/**
           fail_on_unmatched_files: true
+          prerelease: ${{ contains(github.ref_name, '-') }}
           body: |
-            PoC demos for the yes-its-a-problem project. Karategata Banking and
-            Kirimochi are fictional; no real transfer or installation is made.
+            Beta build. Deployment and verification are in progress; this is not
+            a completed proof. Karategata Banking and Kirimochi are fictional; no
+            real transfer or installation is made.
 
             - Karategata Banking Corporation / 空手形銀行 (KBC). Electron payment PoC.
               legacy: Electron 36.9.5. hardened: Electron 45.0.0.

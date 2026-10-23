@@ -4,6 +4,7 @@
     ja: {
       siteName: "Yes, it's a problem",
       siteSub: "PoC: DNS と TLS の確認。空手形銀行と Kirimochi は架空のサービスで、実際の振込やインストールは行われません。",
+      statusNote: "Beta: 展開と検証は途中です。現時点の結果は Proof（証明）ではありません。",
       pocTitle: "この PoC について",
       pocBody: "このページは、DNS の委任応答と TLS の証明書検証を組み合わせた PoC です。委任応答に含まれる ADDITIONAL グルーを使うリゾルバは、正規のネームサーバーではなく攻撃者のネームサーバーへ到達します。攻撃者のサーバーは回収した eMudhra 中間 CA の秘密鍵で署名した証明書を提示し、TLS クライアントが受理する場合があります。このラボの provider は生成したネームサーバー名についても権威を持つため、この確認は provider が ADDITIONAL に誤った A レコードを入れる状況を模擬したものであり、厳密な out-of-bailiwick の失敗ではありません。",
       pocBody2: "上の 2 つのボタンで、それぞれの段階をこのブラウザーから実行できます。このページはそれぞれの結果と、DNS と TLS を組み合わせた結果を表示します。リクエストが失敗したとき、理由はこのページからは分かりません。fetch() は証明書エラーの内容を JavaScript に渡さないため、証明書の拒否と通信の失敗は区別できません。空手形銀行と Kirimochi は架空のサービスで、実際の振込やインストールは行われません。",
@@ -52,6 +53,7 @@
     en: {
       siteName: "Yes, it's a problem",
       siteSub: "PoC: DNS and TLS checks. Karategata Banking and Kirimochi are fictional; no real transfer or installation is made.",
+      statusNote: "Beta: deployment and verification are in progress. This is not a completed proof.",
       pocTitle: "About this PoC",
       pocBody: "This page is a PoC that combines DNS delegation responses with TLS certificate verification. A resolver that uses the ADDITIONAL glue in the delegation response reaches the attacker's nameserver instead of the legitimate one. The attacker's server presents a certificate signed with a recovered eMudhra intermediate CA private key, which a TLS client may accept. In this lab the provider is also authoritative for the generated nameserver name, so the check models a provider that puts a false A record in ADDITIONAL; it is not a strict out-of-bailiwick failure.",
       pocBody2: "The two buttons above run each step from this browser. The page shows each result and the combined DNS and TLS result. When a request fails, the page cannot say why: fetch() does not expose certificate errors, so certificate rejection and connection failure are indistinguishable. Karategata Banking and Kirimochi are fictional services. No real transfer or installation is made.",

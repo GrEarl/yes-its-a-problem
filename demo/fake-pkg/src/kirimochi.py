@@ -19,7 +19,7 @@ import sys
 import tempfile
 from urllib.parse import urlparse
 
-VERSION = "0.1.0"
+VERSION = "0.1.0-beta.1"
 PROG = "kirimochi"
 DEFAULT_URL = "https://pkg.v.lab.yes-its-a-problem.iamwonderingif.com"
 SITE_URL = "https://yes-its-a-problem.iamwonderingif.com/"
@@ -102,7 +102,8 @@ def main(argv=None):
         connect_host = ch
         connect_port = int(cp) if cp else None
 
-    print("Kirimochi %s (PoC demo package manager)" % VERSION)
+    print("Kirimochi %s (PoC demo package manager, beta)" % VERSION)
+    print("Status: deployment and verification are in progress; this is not a completed proof.")
     print("PoC: Kirimochi and this registry are fictional. No package is installed.")
     print("PoC site: %s" % SITE_URL)
     print("Registry: %s" % args.url)

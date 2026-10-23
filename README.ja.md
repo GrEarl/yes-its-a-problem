@@ -2,6 +2,8 @@
 
 [English](README.md) | [日本語](README.ja.md)
 
+> **Beta: 展開と検証は途中です。** 現時点の結果は Proof（証明）ではありません。ラボ、サイト、クライアントの展開と検証が完了するまで、確認済みの証拠として扱わないでください。
+
 DNS の委任応答と TLS の証明書検証を組み合わせた PoC です。空手形銀行と Kirimochi は架空のサービスで、実際の振込やインストールは行われません。
 
 1. 再帰リゾルバが委任応答に含まれる ADDITIONAL グルーを使います。本来はネームサーバー名を別に解決すべきところで、示されたアドレスを使います。
@@ -59,7 +61,7 @@ DNS の委任応答と TLS の証明書検証を組み合わせた PoC です。
 
 ## ビルド
 
-`v0.1.0` などのタグを push すると、GitHub Actions が `macos-latest`、`ubuntu-latest`、`windows-latest` の 3 OS で Electron の旧ビルドと現行ビルドを生成し（3 OS × 2 バージョンの 6 ジョブ）、`kirimochi.pyz` も 1 つ生成して GitHub Release にアップロードします。成果物は macOS の `dmg`/`zip`、Windows の `nsis`/`zip`、Linux の `AppImage` で、Python の zipapp はクロスプラットフォームです。
+現時点の beta では `v0.1.0-beta.1` タグを push します。安定版の `v0.1.0` は、展開と検証が完了してから作成してください。タグを push すると、GitHub Actions が `macos-latest`、`ubuntu-latest`、`windows-latest` の 3 OS で Electron の旧ビルドと現行ビルドを生成し（3 OS × 2 バージョンの 6 ジョブ）、`kirimochi.pyz` も 1 つ生成して GitHub Release にアップロードします。成果物は macOS の `dmg`/`zip`、Windows の `nsis`/`zip`、Linux の `AppImage` で、Python の zipapp はクロスプラットフォームです。
 
 ## ライセンス
 
