@@ -97,7 +97,8 @@ def main(argv=None):
         connect_host = ch
         connect_port = int(cp) if cp else None
 
-    print("Kirimochi %s (Demo Package Manager)" % VERSION)
+    print("Kirimochi %s (PoC demo package manager)" % VERSION)
+    print("PoC: Kirimochi and this registry are fictional. No package is installed.")
     print("Registry: %s" % args.url)
     print("Package : %s" % args.name)
     print("-" * 64)
@@ -164,7 +165,7 @@ def main(argv=None):
         return 3
 
     print()
-    print("KIRIMOCHI DEMO")
+    print("KIRIMOCHI PoC")
     print("  Oh no! Your DNS is poisoned, so you're on a forged network path!")
     print("  Uh-oh! Your environment cannot detect forged application signatures!")
     print()

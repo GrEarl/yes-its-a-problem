@@ -17,10 +17,11 @@
     </div>
   </header>
 
-  <div class="demo-bar"><div class="wrap" data-i18n="ribbon">DEMO</div></div>
+  <div class="demo-bar"><div class="wrap" data-i18n="ribbon">PoC</div></div>
+  <div class="poc-bar"><div class="wrap" data-i18n="pocNotice">空手形銀行は架空の銀行です。実際の振込は行われません。</div></div>
 
   <main class="wrap">
-    <h1 data-i18n="paymentTitle">振込内容</h1>
+    <h1 id="transfer-title" data-i18n="paymentTitle">振込内容</h1>
 
     <section class="transfer" aria-labelledby="transfer-title">
       <dl class="kv">
@@ -45,11 +46,11 @@
     </section>
 
     <section id="danger" class="notice danger hidden" role="alert">
-      <p class="danger-line" data-i18n="dangerDns">なんてこった！あなたのDNSは汚染されているため偽造された通信経路を踏んでいる！</p>
+      <p class="danger-line" data-i18n="dangerDns">危険: DNS が汚染され、偽装された通信経路を経由しています。</p>
     </section>
 
     <section id="safe" class="notice safe hidden" role="status">
-      <p data-i18n="safeBody">証明書の検証に失敗しました。</p>
+      <p data-i18n="safeBody">安全: 証明書の検証に失敗したため、接続は確立されませんでした。</p>
     </section>
   </main>
 

@@ -4,6 +4,8 @@
 
 A TLS certificate demo using an Electron transfer screen.
 
+This is a PoC. Karategata Banking is fictional; no real transfer is made.
+
 - `legacy`: Electron 36.9.5.
 - `hardened`: Electron 45.0.0.
 - Both builds use the same app code. Only the Electron runtime version and the certificate/revocation data it ships differ. The app does not include code that disables certificate verification.

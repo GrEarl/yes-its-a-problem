@@ -4,6 +4,8 @@
 
 The CLI prints English messages. It fetches a manifest and a registry-provided public key, then verifies the manifest signature with OpenSSL. It does not install or execute the package.
 
+This is a PoC. Kirimochi and the registry are fictional; no package is installed.
+
 ## Run
 
 Run from `demo/fake-pkg`. OpenSSL is required.

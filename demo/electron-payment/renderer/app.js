@@ -77,9 +77,14 @@
     try {
       const res = await window.kbc.quote();
       if (!res.ok) {
-        if (isCertError(res.error)) showSafe(); else clearNotices();
         console.error("quote failed:", res.error || ("HTTP " + res.status));
-        setStatus(t("quoteFailed"), "warn");
+        if (isCertError(res.error)) {
+          showSafe();
+          setStatus("", "ok");
+        } else {
+          clearNotices();
+          setStatus(t("quoteFailed"), "warn");
+        }
         return;
       }
       quote = res.data;
@@ -94,9 +99,14 @@
       $("pay-btn").disabled = false;
     } catch (e) {
       const message = String(e && e.message ? e.message : e);
-      if (isCertError(message)) showSafe(); else clearNotices();
       console.error("request failed:", message);
-      setStatus(t("quoteFailed"), "warn");
+      if (isCertError(message)) {
+        showSafe();
+        setStatus("", "ok");
+      } else {
+        clearNotices();
+        setStatus(t("quoteFailed"), "warn");
+      }
     } finally {
       $("quote-btn").disabled = false;
     }
@@ -109,25 +119,35 @@
     try {
       const res = await window.kbc.pay();
       if (!res.ok) {
-        if (isCertError(res.error)) showSafe(); else clearNotices();
         console.error("payment failed:", res.error || ("HTTP " + res.status));
-        setStatus(t("quoteFailed"), "warn");
+        if (isCertError(res.error)) {
+          showSafe();
+          setStatus("", "ok");
+        } else {
+          clearNotices();
+          setStatus(t("requestFailed"), "warn");
+        }
         return;
       }
       const data = res.data || {};
       if (data.account || data.amount || data.merchant) renderQuote(data);
       if (isTampered(data)) {
         showDanger();
-        setStatus(t("paid") + " " + t("receipt") + ": " + (data.receipt || "-"), "bad");
+        setStatus(t("paid") + "（" + t("receipt") + " " + (data.receipt || "-") + "）", "bad");
       } else {
         clearNotices();
-        setStatus(t("paid") + " " + t("receipt") + ": " + (data.receipt || "-"), "ok");
+        setStatus(t("paid") + "（" + t("receipt") + " " + (data.receipt || "-") + "）", "ok");
       }
     } catch (e) {
       const message = String(e && e.message ? e.message : e);
-      if (isCertError(message)) showSafe(); else clearNotices();
       console.error("request failed:", message);
-      setStatus(t("quoteFailed"), "warn");
+      if (isCertError(message)) {
+        showSafe();
+        setStatus("", "ok");
+      } else {
+        clearNotices();
+        setStatus(t("requestFailed"), "warn");
+      }
     } finally {
       $("pay-btn").disabled = false;
     }
