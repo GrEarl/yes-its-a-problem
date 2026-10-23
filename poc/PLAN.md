@@ -5,7 +5,7 @@
 ## 1. Chain
 
 1. A recursive resolver uses an out-of-bailiwick / sibling ADDITIONAL A record from a parent zone referral. It uses the supplied address instead of resolving the nameserver name independently.
-2. A TLS client accepts a certificate forged with a recovered eMudhra intermediate CA private key.
+2. Some TLS clients accept a certificate forged with a recovered eMudhra intermediate CA private key.
 
 ## 2. Names
 
@@ -68,3 +68,4 @@ The leaf is created by the recovered intermediate key, not by a public CA. The p
 3. Run `poc/lab/certs/make_leaf.py` with the recovered CA private key. Use the resulting leaf for the probe hosts.
 4. Start one HTTP server with the valid certificate and one with the forged certificate.
 5. Publish `docs/` with GitHub Pages.
+6. Do not enable `lab_http.py --log` on the public lab; it records visitor IP addresses and User-Agent strings.

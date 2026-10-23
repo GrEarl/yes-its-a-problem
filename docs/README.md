@@ -14,14 +14,14 @@ Static site. There is no build step. The page supports Japanese and English, and
 
 ## Config
 
-`config.js` contains `releasesUrl`, `labDomain`, `mitmHost`, and `controlUrl`. Match `releasesUrl` to the GitHub owner/repo. Keep `labDomain` and `mitmHost` as the check hosts. `controlUrl` is a host with a valid certificate, used as a best-effort control for certificate rejection.
+`config.js` contains `releasesUrl`, `labDomain`, and `mitmHost`. Match `releasesUrl` to the GitHub owner/repo. Keep `labDomain` and `mitmHost` as the check hosts.
 
 ## Checks
 
-The DNS check requests a random label under `v.lab...` over HTTPS. `{"path":"fake"}` means the forged nameserver answered. `{"path":"true"}` means the legitimate nameserver answered. On failure the result is inconclusive.
+The DNS check requests a random label under `v.lab...` over HTTPS. `{"path":"fake"}` means the fake nameserver answered. `{"path":"true"}` means the legitimate nameserver answered. On failure the result is inconclusive.
 
-The TLS check connects to `https://login.v.lab.../tls-probe`. `{"tls":"forged"}` means the server presented the forged certificate and the browser accepted it. `{"tls":"valid"}` means the connection completed with a valid certificate. If the request fails, the page checks `controlUrl`; a reachable control host is consistent with certificate rejection, but does not prove it. The browser does not expose the certificate error itself.
+The TLS check connects to `https://login.v.lab.../tls-probe`. `{"tls":"forged"}` means the server presented the forged certificate and the browser accepted it. `{"tls":"valid"}` means the check completed with the legitimate certificate. If the request fails, the result is inconclusive: the browser does not expose certificate errors to the page, so rejection and connection failure cannot be distinguished.
 
-For the DNS check to return `fake`, the forged nameserver must serve a valid certificate for the random probe name and the forged certificate for the MITM host. Otherwise the browser rejects the probe response before the page can read it.
+For the DNS check to return `fake`, the fake nameserver must serve a valid certificate for the random probe name and the forged certificate for the MITM host. Otherwise the browser rejects the probe response before the page can read it.
 
-The result shows the DNS and TLS states separately, including forged DNS with a failed TLS connection that is consistent with certificate rejection. The two checks are independent requests; the result does not observe a single connection.
+The result shows the combination of the DNS and TLS states, including fake DNS with a TLS check that did not complete.

@@ -15,13 +15,13 @@
   function setBusy(btn, busyKey) {
     if (!btn) return;
     btn.disabled = true;
-    btn.dataset.original = btn.textContent;
     btn.textContent = t(busyKey);
   }
   function clearBusy(btn) {
     if (!btn) return;
     btn.disabled = false;
-    if (btn.dataset.original) btn.textContent = btn.dataset.original;
+    const key = btn.getAttribute("data-i18n");
+    if (key) btn.textContent = t(key);
   }
 
   function renderAll() {
@@ -39,6 +39,21 @@
     box.classList.remove("hidden");
     setText("verdict-dns", state.dns ? t("dnsPrefix") + t(state.dns.key) : "");
     setText("verdict-tls", state.tls ? t("tlsPrefix") + t(state.tls.key) : "");
+
+    const dns = state.dns ? state.dns.key : "dnsUnknown";
+    const tls = state.tls ? state.tls.key : "tlsUnknown";
+    const key = {
+      "dnsSafe:tlsGood": "verdictClean",
+      "dnsSafe:tlsBad": "verdictTlsOnly",
+      "dnsSafe:tlsUnknown": "verdictDnsSafeTlsUnknown",
+      "dnsBad:tlsGood": "verdictBadButValid",
+      "dnsBad:tlsBad": "verdictDanger",
+      "dnsBad:tlsUnknown": "verdictStopped",
+      "dnsUnknown:tlsGood": "verdictUnknownDnsValid",
+      "dnsUnknown:tlsBad": "verdictTlsOnlyDnsUnknown",
+      "dnsUnknown:tlsUnknown": "verdictUnknown"
+    }[dns + ":" + tls] || "verdictUnknown";
+    setText("verdict-summary", t(key), tls === "tlsBad" ? "bad" : (dns === "dnsSafe" && tls === "tlsGood") ? "good" : "warn");
   }
 
   async function fetchJson(url, ms = 10000) {
@@ -49,25 +64,6 @@
       let data = null;
       try { data = await res.json(); } catch (_) {}
       return { ok: res.ok, status: res.status, data };
-    } finally {
-      clearTimeout(timer);
-    }
-  }
-
-  async function controlReachable() {
-    if (!cfg.controlUrl) return false;
-    const ctrl = new AbortController();
-    const timer = setTimeout(() => ctrl.abort(), 5000);
-    try {
-      await fetch(cfg.controlUrl, {
-        mode: "no-cors",
-        cache: "no-store",
-        credentials: "omit",
-        signal: ctrl.signal
-      });
-      return true;
-    } catch (_) {
-      return false;
     } finally {
       clearTimeout(timer);
     }
@@ -110,18 +106,14 @@
       if (res.ok && res.data && res.data.tls === "forged") {
         state.tls = { key: "tlsBad", cls: "bad" };
       } else if (res.ok && res.data && res.data.tls === "valid") {
-        state.tls = { key: "tlsValid", cls: "good" };
+        state.tls = { key: "tlsGood", cls: "good" };
       } else {
         state.tls = { key: "tlsUnknown", cls: "warn" };
       }
     } catch (_) {
-      // fetch() does not expose the certificate error itself.  If the
-      // control host is reachable, the failure is consistent with rejection,
-      // not proof of it.
-      const reachable = await controlReachable();
-      state.tls = reachable
-        ? { key: "tlsRejected", cls: "warn" }
-        : { key: "tlsUnknown", cls: "warn" };
+      // fetch() does not expose certificate errors. A failure can mean the
+      // certificate was rejected, the network failed, or the lab is down.
+      state.tls = { key: "tlsUnknown", cls: "warn" };
     } finally {
       checking = false;
       clearBusy(btn);

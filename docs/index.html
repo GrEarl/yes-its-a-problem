@@ -20,12 +20,13 @@
 
   <section class="poc">
     <h2 data-i18n="pocTitle">About this PoC</h2>
-    <p data-i18n="pocBody">This site checks a PoC that uses out-of-bailiwick ADDITIONAL glue in a DNS delegation response and a certificate forged with a recovered eMudhra intermediate CA private key. DNS and TLS are checked separately.</p>
-    <p data-i18n="pocBody2">If a recursive resolver trusts the glue, DNS is steered to a fake nameserver. Even then, the connection fails if the browser rejects the certificate. That intermediate state is shown in the result.</p>
+    <p data-i18n="pocBody">This page is a PoC that combines DNS delegation responses with TLS certificate verification. A resolver that uses the out-of-bailiwick ADDITIONAL glue in the delegation response reaches the attacker's nameserver instead of the legitimate one. The attacker's server presents a certificate signed with a recovered eMudhra intermediate CA private key, which a TLS client may accept.</p>
+    <p data-i18n="pocBody2">The two buttons below run each step from this browser. The page shows each result and the combined DNS and TLS result. When a request fails, the page cannot say why: fetch() does not expose certificate errors, so certificate rejection and connection failure are indistinguishable.</p>
+    <p class="source"><a href="https://emudhra.we-have-a-problem.com/" data-i18n="researchLink">Original research (third party)</a></p>
   </section>
 
   <h2 data-i18n="checkTitle">Checks</h2>
-  <p data-i18n="checkLead">Each button sends HTTPS requests to a check endpoint. Results are shown on this page.</p>
+  <p data-i18n="checkLead">Each button sends one HTTPS request to a check endpoint. Results are shown on this page.</p>
 
   <h3 data-i18n="dnsCheckTitle">DNS path</h3>
   <p data-i18n="dnsCheckBody">Connects to a random subdomain over HTTPS and shows which nameserver answered.</p>
@@ -33,7 +34,7 @@
   <p id="dns-result" class="result" aria-live="polite"></p>
 
   <h3 data-i18n="tlsCheckTitle">TLS verification</h3>
-  <p data-i18n="tlsCheckBody">Connects to a host presenting the forged certificate and checks whether the certificate is accepted. If the connection fails, a control request to a host with a valid certificate helps tell a certificate rejection apart from a network failure.</p>
+  <p data-i18n="tlsCheckBody">Connects to the host that presents the forged certificate. If the connection completes, the page shows which certificate was presented. If it does not complete, certificate rejection and connection failure cannot be distinguished.</p>
   <button id="tls-btn" class="btn" data-i18n="tlsCheckBtn">Check TLS</button>
   <p id="tls-result" class="result" aria-live="polite"></p>
 
@@ -41,6 +42,7 @@
     <h3 data-i18n="verdictTitle">Result</h3>
     <p id="verdict-dns"></p>
     <p id="verdict-tls"></p>
+    <p id="verdict-summary"></p>
   </div>
 
   <h2 data-i18n="demosTitle">Demos</h2>
