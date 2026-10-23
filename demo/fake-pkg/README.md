@@ -1,5 +1,7 @@
 # Kirimochi
 
+[English](README.md) | [日本語](README.ja.md)
+
 The CLI prints English messages. It fetches a manifest and a registry-provided public key, then verifies the manifest signature with OpenSSL. It does not install or execute the package.
 
 ## Run

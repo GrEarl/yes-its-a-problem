@@ -45,11 +45,14 @@
     }
   };
 
-  let lang = "ja";
+  let lang = "en";
   try {
     const saved = localStorage.getItem("kbc-lang");
     if (saved === "ja" || saved === "en") lang = saved;
-    else if ((navigator.language || "").toLowerCase().startsWith("en")) lang = "en";
+    else {
+      const first = String((navigator.languages && navigator.languages[0]) || navigator.language || "").toLowerCase();
+      if (first.startsWith("ja")) lang = "ja";
+    }
   } catch (_) {}
 
   function t(key) {

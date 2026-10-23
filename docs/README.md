@@ -1,21 +1,23 @@
 # docs
 
-静的サイトです。ビルド処理はありません。日本語と英語に対応し、`?lang=ja` / `?lang=en` で初期言語を指定できます。
+[English](README.md) | [日本語](README.ja.md)
 
-## 公開
+Static site. There is no build step. The page supports Japanese and English, and `?lang=ja` or `?lang=en` sets the initial language. Without a query parameter, the page uses the saved choice or the browser language.
 
-1. リポジトリを GitHub に push する。
-2. Settings の Pages を開き、Source で Deploy from a branch を選ぶ。ブランチは `main`、フォルダは `/docs`。
-3. カスタムドメインに `yes-its-a-problem.iamwonderingif.com` を設定する。
-4. Cloudflare で `yes-its-a-problem` の CNAME レコードを作り、値に `<owner>.github.io` を指定する。DNS only にする。
-5. Enforce HTTPS を有効にする。
+## Publish
 
-## 設定
+1. Push the repository to GitHub.
+2. Open Settings, then Pages. Choose Deploy from a branch. Use `main` and `/docs`.
+3. Set the custom domain to `yes-its-a-problem.iamwonderingif.com`.
+4. In Cloudflare, create a CNAME record for `yes-its-a-problem` with `<owner>.github.io` as the value. Set it to DNS only.
+5. Enable Enforce HTTPS.
 
-`config.js` の `repoUrl` と `releasesUrl` は GitHub の owner/repo に合わせます。`labDomain` と `mitmHost` は検証用ホスト名のままにします。
+## Config
 
-## チェック
+`config.js` contains `repoUrl` and `releasesUrl`. `labDomain` and `mitmHost` are the check hosts.
 
-DNS は `v.lab...` 配下のランダムなラベルへ HTTPS で接続します。`{"path":"fake"}` は偽のネームサーバー、`{"path":"true"}` は正規のネームサーバーです。失敗時は判定不能です。
+## Checks
 
-TLS は `https://login.v.lab.../tls-probe` へ接続します。`{"tls":"forged"}` は検証用サーバーが偽造証明書を提示したという応答です。ブラウザが証明書を拒否した場合は応答が届かず、判定不能になります。
+The DNS check requests a random label under `v.lab...` over HTTPS. `{"path":"fake"}` means the forged nameserver answered. `{"path":"true"}` means the legitimate nameserver answered. On failure the result is inconclusive.
+
+The TLS check connects to `https://login.v.lab.../tls-probe`. `{"tls":"forged"}` is the test server saying it presented the forged certificate. If the browser rejects the certificate, the response does not arrive and the result is inconclusive.

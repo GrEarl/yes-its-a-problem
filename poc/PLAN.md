@@ -1,5 +1,7 @@
 # DNS + TLS MITM PoC: design
 
+[English](PLAN.md) | [日本語](PLAN.ja.md)
+
 ## 1. Chain
 
 1. A recursive resolver uses an out-of-bailiwick / sibling ADDITIONAL A record from a parent zone referral. It uses the supplied address instead of resolving the nameserver name independently.

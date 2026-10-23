@@ -1,35 +1,37 @@
 # DNS + TLS MITM PoC
 
-DNS の委任応答と TLS の証明書検証を組み合わせた PoC です。
+[English](README.md) | [日本語](README.ja.md)
 
-1. 再帰リゾルバが委任応答の out-of-bailiwick な ADDITIONAL グルーを受け入れます。
-2. TLS クライアントが偽造証明書を受け入れます。証明書は回収した eMudhra 中間 CA の秘密鍵で署名されています。
+A PoC combining DNS delegation responses and TLS certificate verification.
 
-元の調査（第三者）: <https://emudhra.we-have-a-problem.com/>
+1. A recursive resolver accepts an out-of-bailiwick ADDITIONAL glue record in a delegation response.
+2. A TLS client accepts a forged certificate. The certificate is signed with a recovered eMudhra intermediate CA private key.
 
-## 構成
+Original research (third party): <https://emudhra.we-have-a-problem.com/>
 
-| パス | 内容 |
+## Layout
+
+| Path | Contents |
 |---|---|
-| PLAN.md | 設計、DNS レコード、証明書、デプロイ |
-| lab/dns/ | 権威 DNS の設定とループバック検証 |
-| lab/http/ | プローブとデモ用 HTTP(S) サーバー |
-| lab/certs/ | リーフ証明書の生成 |
-| vendor/ | dnslib 0.9.26 (BSD) |
+| `PLAN.md` | Design, DNS records, certificates, deployment |
+| `lab/dns/` | Authoritative DNS settings and loopback check |
+| `lab/http/` | Probe and demo HTTP(S) servers |
+| `lab/certs/` | Leaf certificate generation |
+| `vendor/` | dnslib 0.9.26 (BSD) |
 
-## ローカル DNS 検証
+## Local DNS check
 
-リポジトリのルートで実行します。
+Run from the repository root.
 
     bash poc/lab/dns/test_local.sh
 
-`simulate.py` は provider の応答を使い、安全な経路と脆弱な経路を模擬します。実際のリゾルバの判定ではありません。
+`simulate.py` uses the provider response to model a safe path and a vulnerable path. It is not a real resolver test.
 
-1. provider が委任応答で sibling NS と 198.51.100.66 の ADDITIONAL A を返す。
-2. 安全な経路はグルーを無視し、provider へ直接問い合わせて 192.0.2.10 を受け取る。
-3. 脆弱な経路は ADDITIONAL を使い、198.51.100.66 へ向かう。
-4. 出力は `DIFFERENT (poisoned)` になる。
+1. The provider returns a referral with the sibling NS and an ADDITIONAL A for 198.51.100.66.
+2. The safe path ignores glue, asks the provider directly, and receives 192.0.2.10.
+3. The vulnerable path uses the ADDITIONAL A and goes to 198.51.100.66.
+4. The output is `DIFFERENT (poisoned)`.
 
-## 秘密鍵
+## Private keys
 
-秘密鍵は `secrets/` に置きます。リポジトリには含めません。
+Private keys are stored in `secrets/`. They are not part of the repository.

@@ -1,19 +1,21 @@
-# 証明書
+# Certificates
 
-make_leaf.py はリーフ証明書を作ります。署名には回収した EM DV TLS CA - G3B の秘密鍵を使います。
+[English](README.md) | [日本語](README.ja.md)
 
-## 使い方
+`make_leaf.py` creates a leaf certificate. The signature uses the recovered EM DV TLS CA - G3B private key.
+
+## Usage
 
     python3 poc/lab/certs/make_leaf.py --days 30
 
-`secrets/artifacts/keys/EM-DV-TLS-CA-G3B.key.pem` がない場合、make_leaf.py は公開 CA 証明書から秘密鍵を回収して 0600 で保存します。`cryptography` が必要です。
+If `secrets/artifacts/keys/EM-DV-TLS-CA-G3B.key.pem` is missing, `make_leaf.py` recovers the private key from the public CA certificate and writes it with mode 0600. `cryptography` is required.
 
-既定の SAN は次の 3 つ。
+The default SANs are:
 
-- login.v.lab.yes-its-a-problem.iamwonderingif.com
-- pay.v.lab.yes-its-a-problem.iamwonderingif.com
-- pkg.v.lab.yes-its-a-problem.iamwonderingif.com
+- `login.v.lab.yes-its-a-problem.iamwonderingif.com`
+- `pay.v.lab.yes-its-a-problem.iamwonderingif.com`
+- `pkg.v.lab.yes-its-a-problem.iamwonderingif.com`
 
-証明書チェーンは AAA Certificate Services の cross-signature を使います。CA 証明書は poc/lab/certs/、秘密鍵は secrets/ から読み込みます。パスを変えるときは --ca-cert、--ca-key、--roots を指定する。
+The chain uses the AAA Certificate Services cross-signature. The CA certificate is read from `poc/lab/certs/`; the private key is read from `secrets/`. Use `--ca-cert`, `--ca-key`, and `--roots` to change the paths.
 
-秘密鍵は secrets/demo-cert/ に 0600 で保存されます。リポジトリには含めません。
+The private key is written to `secrets/demo-cert/` with mode 0600. It is not part of the repository.
