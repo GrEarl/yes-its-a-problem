@@ -1,6 +1,6 @@
 {
   "name": "karategata-banking-demo",
-  "version": "0.1.0-beta.1",
+  "version": "0.1.0-beta.2",
   "description": "Karategata Banking Corporation / 空手形銀行 (KBC). Electron payment demo for the yes-its-a-problem PoC.",
   "main": "main.js",
   "private": true,

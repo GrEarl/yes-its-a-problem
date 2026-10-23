@@ -61,7 +61,7 @@ DNS の委任応答と TLS の証明書検証を組み合わせた PoC です。
 
 ## ビルド
 
-現時点の beta では `v0.1.0-beta.1` タグを push します。安定版の `v0.1.0` は、展開と検証が完了してから作成してください。タグを push すると、GitHub Actions が `macos-latest`、`ubuntu-latest`、`windows-latest` の 3 OS で Electron の旧ビルドと現行ビルドを生成し（3 OS × 2 バージョンの 6 ジョブ）、`kirimochi.pyz` も 1 つ生成して GitHub Release にアップロードします。成果物は macOS の `dmg`/`zip`、Windows の `nsis`/`zip`、Linux の `AppImage` で、Python の zipapp はクロスプラットフォームです。
+現時点の beta では `v0.1.0-beta.2` タグを push します。安定版の `v0.1.0` は、展開と検証が完了してから作成してください。タグを push すると、GitHub Actions が `macos-latest`、`ubuntu-latest`、`windows-latest` の 3 OS で Electron の旧ビルドと現行ビルドを生成し（3 OS × 2 バージョンの 6 ジョブ）、`kirimochi.pyz` も 1 つ生成して GitHub Release にアップロードします。成果物は macOS の `dmg`/`zip`、Windows の `nsis`/`zip`、Linux の `AppImage` で、Python の zipapp はクロスプラットフォームです。
 
 ## ライセンス
 

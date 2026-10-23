@@ -19,7 +19,7 @@ import sys
 import tempfile
 from urllib.parse import urlparse
 
-VERSION = "0.1.0-beta.1"
+VERSION = "0.1.0-beta.2"
 PROG = "kirimochi"
 DEFAULT_URL = "https://pkg.v.lab.yes-its-a-problem.iamwonderingif.com"
 SITE_URL = "https://yes-its-a-problem.iamwonderingif.com/"

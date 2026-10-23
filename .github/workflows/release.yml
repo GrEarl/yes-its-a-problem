@@ -49,7 +49,7 @@ jobs:
         run: npm ci --no-audit --no-fund
 
       - name: Build
-        run: npx electron-builder --publish never -c.electronVersion=${{ matrix.electron }}
+        run: npx electron-builder --publish never --config.electronVersion=${{ matrix.electron }}
 
       - name: Prefix artifact names
         shell: bash
