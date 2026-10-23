@@ -21,7 +21,8 @@
       requestFailed: "判定不能: 通信または応答に問題がありました。",
       quoteOk: "振込内容を受信しました。",
       tampered: "送金先、口座、金額のいずれかが一致しません。",
-      paidWith: "PoC の送金を完了しました。（PoC 領収書 %s）"
+      paidWith: "PoC の送金を完了しました。（PoC 領収書 %s）",
+      siteLink: "PoC サイト"
     },
     en: {
       pocNotice: "Karategata Banking is fictional. No real transfer is made.",
@@ -43,7 +44,8 @@
       requestFailed: "INCONCLUSIVE: There was a problem with the request or the response.",
       quoteOk: "Transfer details received.",
       tampered: "The payee, account, or amount does not match.",
-      paidWith: "PoC payment completed. (PoC receipt %s)"
+      paidWith: "PoC payment completed. (PoC receipt %s)",
+      siteLink: "PoC site"
     }
   };
 

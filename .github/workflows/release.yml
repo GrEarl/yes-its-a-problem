@@ -54,9 +54,9 @@ jobs:
       - name: Prefix artifact names
         shell: bash
         run: |
-          node -e "const fs=require('fs'); for (const f of fs.readdirSync('dist')) fs.renameSync('dist/'+f, 'dist/'+process.env.FLAVOR+'-'+f);"
+          node -e "const fs=require('fs'); for (const f of fs.readdirSync('dist')) fs.renameSync('dist/'+f, 'dist/'+process.env.PREFIX+'-'+f);"
         env:
-          FLAVOR: ${{ matrix.flavor }}
+          PREFIX: ${{ matrix.os }}-${{ matrix.flavor }}
 
       - uses: actions/upload-artifact@v4
         with:

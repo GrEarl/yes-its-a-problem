@@ -22,6 +22,7 @@ from urllib.parse import urlparse
 VERSION = "0.1.0"
 PROG = "kirimochi"
 DEFAULT_URL = "https://pkg.v.lab.yes-its-a-problem.iamwonderingif.com"
+SITE_URL = "https://yes-its-a-problem.iamwonderingif.com/"
 
 
 class ConnectHTTPSConnection(http.client.HTTPSConnection):
@@ -103,6 +104,7 @@ def main(argv=None):
 
     print("Kirimochi %s (PoC demo package manager)" % VERSION)
     print("PoC: Kirimochi and this registry are fictional. No package is installed.")
+    print("PoC site: %s" % SITE_URL)
     print("Registry: %s" % args.url)
     print("Package : %s" % args.name)
     print("-" * 64)

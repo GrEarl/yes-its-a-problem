@@ -7,7 +7,10 @@ A PoC combining DNS delegation responses and TLS certificate verification.
 1. A recursive resolver uses an ADDITIONAL glue record in a delegation response.
 2. Some TLS clients accept a forged certificate. The certificate is signed with a recovered eMudhra intermediate CA private key.
 
-Original research (third party): <https://emudhra.we-have-a-problem.com/>
+Original research (third party, reporter Wayne): <https://emudhra.we-have-a-problem.com/>
+
+The site links the proof bundle, published chains, Mozilla incident report and
+dev-security-policy thread, Chromium CRLSets, and the patched-version list.
 
 ## Layout
 

@@ -7,7 +7,9 @@ DNS の委任応答と TLS の証明書検証を組み合わせた PoC です。
 1. 再帰リゾルバが委任応答の ADDITIONAL グルーを使います。
 2. 一部の TLS クライアントは偽造証明書を受け入れます。証明書は回収した eMudhra 中間 CA の秘密鍵で署名されています。
 
-元の調査（第三者による）: <https://emudhra.we-have-a-problem.com/>
+元の調査（第三者、報告者 Wayne）: <https://emudhra.we-have-a-problem.com/>
+
+サイトには、証明バンドル、公開されている証明書チェーン、Mozilla のインシデント報告と dev-security-policy の議論、Chromium の CRLSet、修正版の一覧へのリンクがあります。
 
 ## 構成
 

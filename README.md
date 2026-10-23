@@ -7,7 +7,16 @@ A PoC combining DNS delegation responses and TLS certificate verification. Karat
 1. A recursive resolver uses an ADDITIONAL glue record in a delegation response. Instead of resolving the nameserver name separately, it uses the supplied address.
 2. Some TLS clients accept a forged certificate. The certificate is signed with a recovered eMudhra intermediate CA private key.
 
-Original research (third party): <https://emudhra.we-have-a-problem.com/>
+Original research (third party, reporter Wayne): <https://emudhra.we-have-a-problem.com/>
+
+Sources and advisories:
+
+- [Proof bundle](https://emudhra.we-have-a-problem.com/proof.zip)
+- [Published certificate chains](https://emudhra.we-have-a-problem.com/chains.zip)
+- [Mozilla incident report](https://bugzilla.mozilla.org/show_bug.cgi?id=2083449)
+- [Mozilla dev-security-policy thread](https://groups.google.com/a/mozilla.org/g/dev-security-policy/c/0R3XLJL6FuE)
+- [Chromium CRLSets](https://www.chromium.org/Home/chromium-security/crlsets/)
+- [Patched versions by OS and distribution](https://emudhra.we-have-a-problem.com/#patched-os)
 
 ## Layout
 
@@ -33,8 +42,10 @@ Create the leaf certificate first. On the first run, `make_leaf.py` recovers the
       --cert secrets/demo-cert/fullchain.pem \
       --key secrets/demo-cert/leaf.key.pem
 
-    # Package manager
-    python3 demo/fake-pkg/src/kirimochi.py install demo-lib \
+    # Package manager. The lab root is not system-trusted; this env var is for
+    # the local test only.
+    SSL_CERT_FILE=secrets/demo-cert/root.pem \
+      python3 demo/fake-pkg/src/kirimochi.py install demo-lib \
       --url https://pkg.v.lab.yes-its-a-problem.iamwonderingif.com:9445 \
       --connect 127.0.0.1:9445
 
@@ -44,4 +55,4 @@ Certificates and private keys are written to `secrets/`. They are not part of th
 
 ## Build
 
-Push a tag such as `v0.1.0`. GitHub Actions builds the Electron legacy and hardened builds and `kirimochi.pyz`, then uploads them to a GitHub Release.
+Push a tag such as `v0.1.0`. GitHub Actions builds the Electron legacy and hardened builds on `macos-latest`, `ubuntu-latest`, and `windows-latest` (six jobs: three OSes x two Electron versions), plus one `kirimochi.pyz`. Artifacts are macOS `dmg`/`zip`, Windows `nsis`/`zip`, and Linux `AppImage`; the Python zipapp is cross-platform. The workflow uploads them to a GitHub Release.

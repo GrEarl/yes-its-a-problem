@@ -7,7 +7,16 @@ DNS の委任応答と TLS の証明書検証を組み合わせた PoC です。
 1. 再帰リゾルバが委任応答に含まれる ADDITIONAL グルーを使います。本来はネームサーバー名を別に解決すべきところで、示されたアドレスを使います。
 2. 一部の TLS クライアントは偽造証明書を受け入れます。証明書は回収した eMudhra 中間 CA の秘密鍵で署名されています。
 
-元の調査（第三者による）: <https://emudhra.we-have-a-problem.com/>
+元の調査（第三者、報告者 Wayne）: <https://emudhra.we-have-a-problem.com/>
+
+出典と警告:
+
+- [証明バンドル](https://emudhra.we-have-a-problem.com/proof.zip)
+- [公開されている証明書チェーン](https://emudhra.we-have-a-problem.com/chains.zip)
+- [Mozilla のインシデント報告](https://bugzilla.mozilla.org/show_bug.cgi?id=2083449)
+- [Mozilla dev-security-policy の議論](https://groups.google.com/a/mozilla.org/g/dev-security-policy/c/0R3XLJL6FuE)
+- [Chromium の CRLSet](https://www.chromium.org/Home/chromium-security/crlsets/)
+- [各 OS・ディストリの修正版](https://emudhra.we-have-a-problem.com/#patched-os)
 
 ## 構成
 
@@ -33,8 +42,10 @@ DNS の委任応答と TLS の証明書検証を組み合わせた PoC です。
       --cert secrets/demo-cert/fullchain.pem \
       --key secrets/demo-cert/leaf.key.pem
 
-    # パッケージマネージャー
-    python3 demo/fake-pkg/src/kirimochi.py install demo-lib \
+    # パッケージマネージャー。ラボのルートはシステムでは信頼されていない。
+    # この環境変数はローカルテスト専用。
+    SSL_CERT_FILE=secrets/demo-cert/root.pem \
+      python3 demo/fake-pkg/src/kirimochi.py install demo-lib \
       --url https://pkg.v.lab.yes-its-a-problem.iamwonderingif.com:9445 \
       --connect 127.0.0.1:9445
 
@@ -44,4 +55,4 @@ DNS の委任応答と TLS の証明書検証を組み合わせた PoC です。
 
 ## ビルド
 
-`v0.1.0` などのタグを push すると、GitHub Actions が Electron の旧ビルド、現行ビルド、`kirimochi.pyz` を生成し、GitHub Release にアップロードします。
+`v0.1.0` などのタグを push すると、GitHub Actions が `macos-latest`、`ubuntu-latest`、`windows-latest` の 3 OS で Electron の旧ビルドと現行ビルドを生成し（3 OS × 2 バージョンの 6 ジョブ）、`kirimochi.pyz` も 1 つ生成して GitHub Release にアップロードします。成果物は macOS の `dmg`/`zip`、Windows の `nsis`/`zip`、Linux の `AppImage` で、Python の zipapp はクロスプラットフォームです。

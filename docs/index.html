@@ -42,7 +42,16 @@
     <h2 data-i18n="pocTitle">About this PoC</h2>
     <p data-i18n="pocBody">This page is a PoC that combines DNS delegation responses with TLS certificate verification. A resolver that uses the ADDITIONAL glue in the delegation response reaches the attacker's nameserver instead of the legitimate one. The attacker's server presents a certificate signed with a recovered eMudhra intermediate CA private key, which a TLS client may accept. In this lab the provider is also authoritative for the generated nameserver name, so the check models a provider that puts a false A record in ADDITIONAL; it is not a strict out-of-bailiwick failure.</p>
     <p data-i18n="pocBody2">The two buttons above run each step from this browser. The page shows each result and the combined DNS and TLS result. When a request fails, the page cannot say why: fetch() does not expose certificate errors, so certificate rejection and connection failure are indistinguishable. Karategata Banking and Kirimochi are fictional services. No real transfer or installation is made.</p>
-    <p class="source"><a href="https://emudhra.we-have-a-problem.com/" data-i18n="researchLink">Original research (third party)</a></p>
+    <h3 data-i18n="sourcesTitle">Sources and advisories</h3>
+    <ul class="sources">
+      <li><a href="https://emudhra.we-have-a-problem.com/" target="_blank" rel="noopener noreferrer" data-i18n="sourceResearch">Original research and report (third party, reporter Wayne)</a></li>
+      <li><a href="https://emudhra.we-have-a-problem.com/proof.zip" target="_blank" rel="noopener noreferrer" data-i18n="sourceProof">Proof bundle (eight intermediate CA signatures)</a></li>
+      <li><a href="https://emudhra.we-have-a-problem.com/chains.zip" target="_blank" rel="noopener noreferrer" data-i18n="sourceChains">Published certificate chains (14 hosts)</a></li>
+      <li><a href="https://bugzilla.mozilla.org/show_bug.cgi?id=2083449" target="_blank" rel="noopener noreferrer" data-i18n="sourceMozillaBug">Mozilla incident report</a></li>
+      <li><a href="https://groups.google.com/a/mozilla.org/g/dev-security-policy/c/0R3XLJL6FuE" target="_blank" rel="noopener noreferrer" data-i18n="sourceMozillaThread">Mozilla dev-security-policy thread</a></li>
+      <li><a href="https://www.chromium.org/Home/chromium-security/crlsets/" target="_blank" rel="noopener noreferrer" data-i18n="sourceCrlsets">Chromium CRLSets</a></li>
+      <li><a href="https://emudhra.we-have-a-problem.com/#patched-os" target="_blank" rel="noopener noreferrer" data-i18n="sourcePatched">Patched versions by OS and distribution</a></li>
+    </ul>
   </section>
 
   <h2 data-i18n="demosTitle">PoC</h2>

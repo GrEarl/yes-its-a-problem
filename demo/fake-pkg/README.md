@@ -6,6 +6,8 @@ The CLI prints English messages. It fetches a manifest and a registry-provided p
 
 This is a PoC. Kirimochi and the registry are fictional; no package is installed.
 
+PoC site: <https://yes-its-a-problem.iamwonderingif.com/>
+
 ## Run
 
 Run from `demo/fake-pkg`. OpenSSL is required.
@@ -18,9 +20,12 @@ Start the registry.
 
 In another shell, run the client.
 
-    python3 src/kirimochi.py install demo-lib \
+    SSL_CERT_FILE=../../secrets/demo-cert/root.pem \
+      python3 src/kirimochi.py install demo-lib \
       --url https://pkg.v.lab.yes-its-a-problem.iamwonderingif.com:9445 \
       --connect 127.0.0.1:9445
+
+The lab root is not in the system trust store. `SSL_CERT_FILE` points at that root for this test run only, modelling a client whose trust store still contains the root. It is not a client setting and must not be added system-wide.
 
 If the runtime trust store accepts the forged chain, the client prints the scenario warning and the PoC qualification, then ends with `DANGER: signature verification passed, but the registry-provided key is unpinned and the source is untrusted; no package was installed.` The scenario line says DNS may be poisoned; the qualification says the client does not inspect DNS itself. If it rejects the chain, it prints `SAFE: TLS certificate verification failed; the connection was blocked and no package was installed.` The result depends on the runtime, not on the client code.
 

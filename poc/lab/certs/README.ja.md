@@ -19,3 +19,9 @@
 証明書チェーンは AAA Certificate Services の cross-signature を使います。CA 証明書は `poc/lab/certs/`、秘密鍵は `secrets/` から読み込みます。パスを変えるときは `--ca-cert`、`--ca-key`、`--roots` を指定する。
 
 秘密鍵は `secrets/demo-cert/` に 0600 で保存されます。リポジトリには含めません。
+
+## 回収した素材の確認
+
+    python3 poc/lab/certs/check_material.py
+
+`artifacts/impacted-intermediates.json` の公開中間証明書 16 件（8 本の中間 CA × eMudhra 発行と AAA cross-signature）と、`secrets/artifacts/keys` の回収済み秘密鍵 8 本を照合し、`secrets/demo-cert/` と `secrets/demo-cert-emsign/` の 2 つのデモチェーンを検証します。秘密鍵を読みますが、何も書き込みません。デモアプリが使うのは `EM DV TLS CA - G3B` のチェーンで、残りの中間 CA は証拠素材であり、別々のアプリビルドではありません。

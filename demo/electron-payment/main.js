@@ -1,5 +1,5 @@
 "use strict";
-const { app, BrowserWindow, ipcMain, net } = require("electron");
+const { app, BrowserWindow, ipcMain, net, shell } = require("electron");
 const path = require("path");
 
 const EXPECTED = Object.freeze({
@@ -48,6 +48,13 @@ function createWindow() {
     }
   });
   win.loadFile(path.join(__dirname, "renderer", "index.html"));
+
+  win.webContents.setWindowOpenHandler(({ url }) => {
+    if (url.startsWith("https://yes-its-a-problem.iamwonderingif.com")) {
+      shell.openExternal(url);
+    }
+    return { action: "deny" };
+  });
 }
 
 app.whenReady().then(() => {
