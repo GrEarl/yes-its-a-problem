@@ -18,6 +18,10 @@ DNS の委任応答と TLS の証明書検証を組み合わせた PoC です。
 - [Chromium の CRLSet](https://www.chromium.org/Home/chromium-security/crlsets/)
 - [各 OS・ディストリの修正版](https://emudhra.we-have-a-problem.com/#patched-os)
 
+## 利用上の注意
+
+このリポジトリ内のラボ名、または自分が管理するホストに対してのみ実行してください。偽造証明書を返すサーバーは、公開された中間傍受サービスではありません。ここで使う eMudhra 中間 CA は失効済みで、秘密鍵は含まれていません。`secrets/` はローカルに留めてください。詳細は [SECURITY.md](SECURITY.md)。
+
 ## 構成
 
 | パス | 内容 |
@@ -56,3 +60,7 @@ DNS の委任応答と TLS の証明書検証を組み合わせた PoC です。
 ## ビルド
 
 `v0.1.0` などのタグを push すると、GitHub Actions が `macos-latest`、`ubuntu-latest`、`windows-latest` の 3 OS で Electron の旧ビルドと現行ビルドを生成し（3 OS × 2 バージョンの 6 ジョブ）、`kirimochi.pyz` も 1 つ生成して GitHub Release にアップロードします。成果物は macOS の `dmg`/`zip`、Windows の `nsis`/`zip`、Linux の `AppImage` で、Python の zipapp はクロスプラットフォームです。
+
+## ライセンス
+
+MIT。[LICENSE](LICENSE) を参照。第三者の証明書データと調査リンクは、それぞれの出典元の条件に従います。

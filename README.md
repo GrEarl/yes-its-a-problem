@@ -18,6 +18,10 @@ Sources and advisories:
 - [Chromium CRLSets](https://www.chromium.org/Home/chromium-security/crlsets/)
 - [Patched versions by OS and distribution](https://emudhra.we-have-a-problem.com/#patched-os)
 
+## Use and limits
+
+Run this only against the lab names in this repository or hosts you control. The forged-certificate server is not a public interception service. The eMudhra intermediates used here are revoked; no private keys are included, and `secrets/` must stay local. See [SECURITY.md](SECURITY.md).
+
 ## Layout
 
 | Path | Contents |
@@ -56,3 +60,7 @@ Certificates and private keys are written to `secrets/`. They are not part of th
 ## Build
 
 Push a tag such as `v0.1.0`. GitHub Actions builds the Electron legacy and hardened builds on `macos-latest`, `ubuntu-latest`, and `windows-latest` (six jobs: three OSes x two Electron versions), plus one `kirimochi.pyz`. Artifacts are macOS `dmg`/`zip`, Windows `nsis`/`zip`, and Linux `AppImage`; the Python zipapp is cross-platform. The workflow uploads them to a GitHub Release.
+
+## License
+
+MIT. See [LICENSE](LICENSE). Third-party certificate data and research links remain subject to their original sources.
