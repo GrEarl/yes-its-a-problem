@@ -28,6 +28,7 @@ p { margin-top: 0; margin-bottom: 1rem; }
 .verdict h3 { margin-top: 0; }
 .verdict p:empty { display: none; }
 .sources { margin: .5rem 0 1.25rem; padding-left: 1.25rem; font-size: .9rem; }
+.sources-note { margin: .25rem 0 .75rem; color: #666; font-size: .85rem; }
 .sources li { margin: .25rem 0; }
 .hidden { display: none; }
 footer { margin-top: 3rem; border-top: 1px solid #ccc; padding-top: 1rem; color: #6b6b6b; font-size: .8rem; }
