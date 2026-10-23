@@ -20,6 +20,12 @@ Sources and advisories:
 - [Chromium CRLSets](https://www.chromium.org/Home/chromium-security/crlsets/)
 - [Patched versions by OS and distribution](https://emudhra.we-have-a-problem.com/#patched-os)
 
+DNS background (glue handling, not an independent validation of this lab):
+
+- [Cloudflare Community: 1.1.1.1 answers a wrong A record when the authority nameserver has an unrelated ADDITIONAL](https://community.cloudflare.com/t/1-1-1-1-answers-wrong-a-record-when-authority-name-server-has-unrelated-addtional/966458)
+- [Rethinking the Security Threats of Stale DNS Glue Records (USENIX Security 2024)](https://www.usenix.org/system/files/usenixsecurity24-zhang-yunyi-rethinking.pdf) ([presentation](https://www.usenix.org/conference/usenixsecurity24/presentation/zhang-yunyi-rethinking))
+- [ISC BIND: Operational Notification: Impact of Stricter Glue Checking](https://kb.isc.org/docs/strict-glue)
+
 ## Use and limits
 
 Run this only against the lab names in this repository or hosts you control. The forged-certificate server is not a public interception service. The eMudhra intermediates used here are revoked; no private keys are included, and `secrets/` must stay local. See [SECURITY.md](SECURITY.md).

@@ -12,6 +12,12 @@ Original research (third party, reporter Wayne): <https://emudhra.we-have-a-prob
 The site links the proof bundle, published chains, Mozilla incident report and
 dev-security-policy thread, Chromium CRLSets, and the patched-version list.
 
+DNS glue background, not an independent validation of this lab:
+
+- [Cloudflare Community: 1.1.1.1 answers a wrong A record when the authority nameserver has an unrelated ADDITIONAL](https://community.cloudflare.com/t/1-1-1-1-answers-wrong-a-record-when-authority-name-server-has-unrelated-addtional/966458)
+- [Rethinking the Security Threats of Stale DNS Glue Records (USENIX Security 2024)](https://www.usenix.org/system/files/usenixsecurity24-zhang-yunyi-rethinking.pdf), [presentation](https://www.usenix.org/conference/usenixsecurity24/presentation/zhang-yunyi-rethinking)
+- [ISC BIND: Operational Notification: Impact of Stricter Glue Checking](https://kb.isc.org/docs/strict-glue)
+
 ## Layout
 
 | Path | Contents |

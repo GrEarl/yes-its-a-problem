@@ -16,6 +16,11 @@
       sourceMozillaThread: "Mozilla dev-security-policy の議論",
       sourceCrlsets: "Chromium の CRLSet",
       sourcePatched: "各 OS・ディストリの修正版",
+      dnsSourcesTitle: "DNS グルー処理の背景",
+      sourceCloudflare: "Cloudflare Community: 無関係な ADDITIONAL がある場合に 1.1.1.1 が誤った A レコードを返す件",
+      sourceStaleGlue: "Rethinking the Security Threats of Stale DNS Glue Records（USENIX Security 2024）",
+      sourceStaleGlueTalk: "USENIX Security 2024 発表ページ",
+      sourceIscStrictGlue: "ISC BIND: Operational Notification: Impact of Stricter Glue Checking",
 
       checkTitle: "確認",
       checkLead: "各ボタンを押すと、検証用エンドポイントへ HTTPS リクエストを 1 回送ります。結果はこのページ内に表示されます。",
@@ -65,6 +70,11 @@
       sourceMozillaThread: "Mozilla dev-security-policy thread",
       sourceCrlsets: "Chromium CRLSets",
       sourcePatched: "Patched versions by OS and distribution",
+      dnsSourcesTitle: "DNS glue background",
+      sourceCloudflare: "Cloudflare Community: 1.1.1.1 returns a wrong A record with an unrelated ADDITIONAL",
+      sourceStaleGlue: "Rethinking the Security Threats of Stale DNS Glue Records (USENIX Security 2024)",
+      sourceStaleGlueTalk: "USENIX Security 2024 presentation",
+      sourceIscStrictGlue: "ISC BIND: Operational Notification: Impact of Stricter Glue Checking",
 
       checkTitle: "Checks",
       checkLead: "Each button sends one HTTPS request to a check endpoint. Results are shown on this page.",

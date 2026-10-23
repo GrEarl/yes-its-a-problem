@@ -20,6 +20,12 @@ DNS の委任応答と TLS の証明書検証を組み合わせた PoC です。
 - [Chromium の CRLSet](https://www.chromium.org/Home/chromium-security/crlsets/)
 - [各 OS・ディストリの修正版](https://emudhra.we-have-a-problem.com/#patched-os)
 
+DNS グルー処理の背景（このラボを個別に検証するものではありません）:
+
+- [Cloudflare Community: 権威ネームサーバーに無関係な ADDITIONAL がある場合に 1.1.1.1 が誤った A レコードを返す件](https://community.cloudflare.com/t/1-1-1-1-answers-wrong-a-record-when-authority-name-server-has-unrelated-addtional/966458)
+- [Rethinking the Security Threats of Stale DNS Glue Records（USENIX Security 2024）](https://www.usenix.org/system/files/usenixsecurity24-zhang-yunyi-rethinking.pdf)（[発表ページ](https://www.usenix.org/conference/usenixsecurity24/presentation/zhang-yunyi-rethinking)）
+- [ISC BIND: Operational Notification: Impact of Stricter Glue Checking](https://kb.isc.org/docs/strict-glue)
+
 ## 利用上の注意
 
 このリポジトリ内のラボ名、または自分が管理するホストに対してのみ実行してください。偽造証明書を返すサーバーは、公開された中間傍受サービスではありません。ここで使う eMudhra 中間 CA は失効済みで、秘密鍵は含まれていません。`secrets/` はローカルに留めてください。詳細は [SECURITY.md](SECURITY.md)。
