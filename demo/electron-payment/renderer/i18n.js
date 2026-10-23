@@ -13,7 +13,7 @@
       quoteBtn: "内容を確認",
       payBtn: "送金する",
       receivedTitle: "受信した内容",
-      dangerDns: "危険: DNS が汚染され、偽装された通信経路を経由しています。",
+      dangerDns: "危険: 送金先、口座、金額が正規の値と一致しません。",
       safeBody: "安全: 証明書の検証に失敗したため、接続は確立されませんでした。",
       electronUnavailable: "Electron で起動してください。",
       loading: "取得中...",
@@ -21,8 +21,7 @@
       requestFailed: "判定不能: 通信に失敗しました。",
       quoteOk: "振込内容を受信しました。",
       tampered: "送金先、口座、金額のいずれかが一致しません。",
-      paid: "デモ送金を完了しました。",
-      receipt: "デモ領収書"
+      paidWith: "デモ送金を完了しました。（デモ領収書 %s）"
     },
     en: {
       ribbon: "PoC",
@@ -36,7 +35,7 @@
       quoteBtn: "Review",
       payBtn: "Send",
       receivedTitle: "Received",
-      dangerDns: "DANGER: Your DNS is poisoned, and traffic is routed through a forged network path.",
+      dangerDns: "DANGER: The payee, account, or amount does not match the expected values.",
       safeBody: "SAFE: Certificate verification failed, so the connection was not established.",
       electronUnavailable: "Start this app with Electron.",
       loading: "Fetching...",
@@ -44,8 +43,7 @@
       requestFailed: "INCONCLUSIVE: The request failed.",
       quoteOk: "Transfer details received.",
       tampered: "The payee, account, or amount does not match.",
-      paid: "Demo payment completed.",
-      receipt: "Demo receipt"
+      paidWith: "Demo payment completed. (Demo receipt %s)"
     }
   };
 
@@ -62,9 +60,8 @@
   function t(key) {
     return (dict[lang] && dict[lang][key]) || dict.en[key] || key;
   }
-  function apply(root) {
-    const scope = root || document;
-    scope.querySelectorAll("[data-i18n]").forEach((el) => {
+  function apply() {
+    document.querySelectorAll("[data-i18n]").forEach((el) => {
       el.textContent = t(el.getAttribute("data-i18n"));
     });
     document.documentElement.lang = lang;
@@ -77,7 +74,6 @@
     lang = next;
     try { localStorage.setItem("kbc-lang", lang); } catch (_) {}
     apply();
-    window.dispatchEvent(new CustomEvent("kbc-lang", { detail: lang }));
   }
   window.KBC_I18N = { t, apply, setLang, getLang: () => lang };
 })();

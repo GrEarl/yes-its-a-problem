@@ -23,6 +23,14 @@
   <main class="wrap">
     <h1 id="transfer-title" data-i18n="paymentTitle">振込内容</h1>
 
+    <section id="danger" class="notice danger hidden" role="alert">
+      <p class="danger-line" data-i18n="dangerDns">危険: 送金先、口座、金額が正規の値と一致しません。</p>
+    </section>
+
+    <section id="safe" class="notice safe hidden" role="status">
+      <p data-i18n="safeBody">安全: 証明書の検証に失敗したため、接続は確立されませんでした。</p>
+    </section>
+
     <section class="transfer" aria-labelledby="transfer-title">
       <dl class="kv">
         <dt data-i18n="payee">送金先</dt><dd id="expected-payee">Karategata Demo Shop</dd>
@@ -31,7 +39,7 @@
       </dl>
       <div class="actions">
         <button id="quote-btn" type="button" class="primary" data-i18n="quoteBtn">内容を確認</button>
-        <button id="pay-btn" type="button" class="secondary" disabled data-i18n="payBtn">送金する</button>
+        <button id="pay-btn" type="button" disabled data-i18n="payBtn">送金する</button>
       </div>
       <p id="status" class="status" aria-live="polite"></p>
 
@@ -43,14 +51,6 @@
           <dt data-i18n="amount">金額</dt><dd id="recv-amount">-</dd>
         </dl>
       </div>
-    </section>
-
-    <section id="danger" class="notice danger hidden" role="alert">
-      <p class="danger-line" data-i18n="dangerDns">危険: DNS が汚染され、偽装された通信経路を経由しています。</p>
-    </section>
-
-    <section id="safe" class="notice safe hidden" role="status">
-      <p data-i18n="safeBody">安全: 証明書の検証に失敗したため、接続は確立されませんでした。</p>
     </section>
   </main>
 

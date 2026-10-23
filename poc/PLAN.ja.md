@@ -27,8 +27,8 @@
                     DNS チェックが path=fake を返せるようにする。
 
 注: このラボでは IP1 が ns<hash>.true.<zone> についても権威を持つため、
-ADDITIONAL A は同じ provider の権威データになる。モデルが示すのはデータの
-流れであり、厳密な out-of-bailiwick の失敗ではない。
+ADDITIONAL A は同じ provider の権威データになります。このシミュレーションが示すのは
+データの流れであり、厳密な out-of-bailiwick の失敗ではありません。
 
 安全なリゾルバ
 

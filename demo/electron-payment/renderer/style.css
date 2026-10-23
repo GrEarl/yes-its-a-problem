@@ -10,7 +10,7 @@ body { margin: 0; padding: 0; }
 .lang { display: flex; gap: .5rem; flex: 0 0 auto; }
 .lang-btn { font: inherit; font-size: .85rem; color: #0645ad; background: none; border: 0; padding: 0; cursor: pointer; text-decoration: underline; }
 .lang-btn.active { color: #111; text-decoration: none; font-weight: 600; }
-.lang-btn:focus-visible { outline: 2px solid #0645ad; outline-offset: 2px; }
+button:focus-visible { outline: 2px solid #0645ad; outline-offset: 2px; }
 
 .demo-bar { border-bottom: 1px solid #eee; padding: .55rem 0; color: #666; font-size: .8rem; }
 .poc-bar { background: #fff7e6; border-bottom: 1px solid #e5c07b; padding: .55rem 0; color: #5c4300; font-size: .8rem; }
@@ -34,7 +34,7 @@ button.primary { border-color: #444; background: #fff; }
 .status.warn { color: #8a5a00; }
 
 .received { margin-top: 1rem; border-top: 1px solid #ddd; padding-top: 1rem; }
-.notice { border: 1px solid #ccc; padding: 1rem 1.25rem; margin-top: 1.5rem; }
+.notice { border: 1px solid #ccc; padding: 1rem 1.25rem; margin: 1.5rem 0; }
 .notice.danger { border-color: #c66; }
 .notice.safe { border-color: #9c9; }
 .notice p { margin: 0; }

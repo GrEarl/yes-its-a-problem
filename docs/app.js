@@ -39,6 +39,10 @@
     box.classList.remove("hidden");
     setText("verdict-dns", state.dns ? t("dnsPrefix") + t(state.dns.key) : "");
     setText("verdict-tls", state.tls ? t("tlsPrefix") + t(state.tls.key) : "");
+    if (!state.dns || !state.tls) {
+      setText("verdict-summary", t("verdictNotRun"), "warn");
+      return;
+    }
 
     const dns = state.dns ? state.dns.key : "dnsUnknown";
     const tls = state.tls ? state.tls.key : "tlsUnknown";
@@ -73,7 +77,7 @@
     if (checking) return;
     checking = true;
     const btn = $("dns-btn");
-    setBusy(btn, "dnsButtonBusy");
+    setBusy(btn, "checking");
     setText("dns-result", t("checking"), "");
     try {
       const label = "r" + Math.random().toString(16).slice(2, 10);
@@ -99,7 +103,7 @@
     if (checking) return;
     checking = true;
     const btn = $("tls-btn");
-    setBusy(btn, "tlsButtonBusy");
+    setBusy(btn, "checking");
     setText("tls-result", t("checking"), "");
     try {
       const res = await fetchJson("https://" + cfg.mitmHost + "/tls-probe");

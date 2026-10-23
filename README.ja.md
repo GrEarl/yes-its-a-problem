@@ -2,7 +2,7 @@
 
 [English](README.md) | [日本語](README.ja.md)
 
-DNS の委任応答と TLS の証明書検証を組み合わせた PoC です。
+DNS の委任応答と TLS の証明書検証を組み合わせた PoC です。空手形銀行と Kirimochi は架空のサービスで、実際の振込やインストールは行われません。
 
 1. 再帰リゾルバが委任応答に含まれる ADDITIONAL グルーを使います。本来はネームサーバー名を別に解決すべきところで、示されたアドレスを使います。
 2. 一部の TLS クライアントは偽造証明書を受け入れます。証明書は回収した eMudhra 中間 CA の秘密鍵で署名されています。
@@ -38,7 +38,7 @@ DNS の委任応答と TLS の証明書検証を組み合わせた PoC です。
       --url https://pkg.v.lab.yes-its-a-problem.iamwonderingif.com:9445 \
       --connect 127.0.0.1:9445
 
-前提: Python 3、`cryptography`、OpenSSL、`dig`。
+前提: Python 3、`cryptography`、OpenSSL、`dig`。`dnslib` は `poc/vendor` に同梱しています。
 
 証明書と秘密鍵は `secrets/` に置きます。リポジトリには含めません。
 

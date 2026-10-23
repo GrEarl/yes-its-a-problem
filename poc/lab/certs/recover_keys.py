@@ -10,7 +10,7 @@ Usage:
     python3 recover_keys.py ../certs/intermediates/*.pem
 Writes <name>.key.pem next to each input certificate.
 """
-import re, sys, os, subprocess
+import sys, os
 from cryptography import x509
 from cryptography.hazmat.primitives.asymmetric import ec
 from cryptography.hazmat.primitives import serialization
@@ -32,16 +32,9 @@ def add(Pt, Qt):
     x3=(l*l-x1-x2)%P
     return (x3,(l*(x1-x3)-y1)%P)
 
-def mul(d,Pt):
-    R=None; B=Pt
-    while d:
-        if d&1: R=add(R,B)
-        B=add(B,B); d>>=1
-    return R
-
 def pub_point(cert_path):
-    pem = subprocess.check_output(['openssl','x509','-in',cert_path,'-outform','PEM'])
-    c = x509.load_pem_x509_certificate(pem)
+    with open(cert_path, 'rb') as fh:
+        c = x509.load_pem_x509_certificate(fh.read())
     pk = c.public_key()
     if not isinstance(pk, ec.EllipticCurvePublicKey): return None
     return pk.public_numbers().x, pk.public_numbers().y
@@ -56,8 +49,11 @@ def recover(cert_path):
             priv = ec.derive_private_key(d, ec.SECP384R1())
             pem = priv.private_bytes(serialization.Encoding.PEM,
                       serialization.PrivateFormat.PKCS8, serialization.NoEncryption())
-            out = cert_path.rsplit('/',1)[0] + '/' + os.path.basename(cert_path).replace('.crt.pem','').replace('.pem','') + '.key.pem'
+            base = os.path.basename(cert_path)
+            out = os.path.join(os.path.dirname(cert_path) or '.',
+                               base.replace('.crt.pem','').replace('.pem','') + '.key.pem')
             fd = os.open(out, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
+            os.fchmod(fd, 0o600)
             with os.fdopen(fd, 'wb') as fh:
                 fh.write(pem)
             print(f"{os.path.basename(cert_path):35s}  d = {d:3d} (0x{d:02x})  -> {out}")

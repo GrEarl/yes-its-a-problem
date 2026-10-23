@@ -46,10 +46,7 @@ jobs:
           node-version: "22"
 
       - name: Install build dependencies
-        run: npm install --no-audit --no-fund
-
-      - name: Pin Electron version
-        run: npm install --no-save --no-audit --no-fund electron@${{ matrix.electron }}
+        run: npm ci --no-audit --no-fund
 
       - name: Build
         run: npx electron-builder --publish never -c.electronVersion=${{ matrix.electron }}
@@ -109,9 +106,10 @@ jobs:
           files: artifacts/**
           fail_on_unmatched_files: true
           body: |
-            Demos for the yes-its-a-problem PoC.
+            PoC demos for the yes-its-a-problem project. Karategata Banking and
+            Kirimochi are fictional; no real transfer or installation is made.
 
-            - Karategata Banking Corporation / 空手形銀行 (KBC). Electron payment demo.
+            - Karategata Banking Corporation / 空手形銀行 (KBC). Electron payment PoC.
               legacy: Electron 36.9.5. hardened: Electron 45.0.0.
-            - Kirimochi. English-only package manager demo.
+            - Kirimochi. English-only package manager PoC.
               Fetches a manifest and verifies its signature with a registry-supplied, unpinned key.

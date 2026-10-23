@@ -2,7 +2,7 @@
 
 [English](README.md) | [日本語](README.ja.md)
 
-A PoC combining DNS delegation responses and TLS certificate verification.
+A PoC combining DNS delegation responses and TLS certificate verification. Karategata Banking and Kirimochi are fictional; no real transfer or installation is made.
 
 1. A recursive resolver uses an ADDITIONAL glue record in a delegation response. Instead of resolving the nameserver name separately, it uses the supplied address.
 2. Some TLS clients accept a forged certificate. The certificate is signed with a recovered eMudhra intermediate CA private key.
@@ -38,7 +38,7 @@ Create the leaf certificate first. On the first run, `make_leaf.py` recovers the
       --url https://pkg.v.lab.yes-its-a-problem.iamwonderingif.com:9445 \
       --connect 127.0.0.1:9445
 
-Prerequisites: Python 3, `cryptography`, OpenSSL, and `dig`.
+Prerequisites: Python 3, `cryptography`, OpenSSL, and `dig`. `dnslib` is vendored in `poc/vendor`.
 
 Certificates and private keys are written to `secrets/`. They are not part of the repository.
 

@@ -4,12 +4,7 @@
   "description": "Karategata Banking Corporation / 空手形銀行 (KBC). Electron payment demo for the yes-its-a-problem PoC.",
   "main": "main.js",
   "private": true,
-  "scripts": {
-    "start": "electron .",
-    "dist": "electron-builder --publish never"
-  },
   "devDependencies": {
-    "electron": "45.0.0",
     "electron-builder": "^26.0.12"
   },
   "build": {

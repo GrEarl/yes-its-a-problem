@@ -5,13 +5,11 @@ const path = require("path");
 const EXPECTED = Object.freeze({
   merchant: "Karategata Demo Shop",
   account: "KBC-0001",
-  amount: 1000,
-  currency: "JPY"
+  amount: 1000
 });
 
 function loadApiUrl() {
   let apiUrl = "https://pay.v.lab.yes-its-a-problem.iamwonderingif.com";
-  if (process.env.KBC_API_URL) apiUrl = process.env.KBC_API_URL;
   for (const arg of process.argv) {
     if (arg.startsWith("--kbc-api-url=")) apiUrl = arg.slice("--kbc-api-url=".length);
   }
@@ -26,9 +24,9 @@ async function fetchJson(url, options = {}) {
   try {
     const res = await net.fetch(url, { cache: "no-store", signal: controller.signal, ...options });
     const text = await res.text();
-    let data;
-    try { data = JSON.parse(text); } catch (_) { data = { raw: text.slice(0, 500) }; }
-    return { ok: res.ok, status: res.status, data, url };
+    let data, jsonValid = true;
+    try { data = JSON.parse(text); } catch (_) { data = { raw: text.slice(0, 500) }; jsonValid = false; }
+    return { ok: res.ok, status: res.status, data, jsonValid, url };
   } finally {
     clearTimeout(timer);
   }

@@ -5,8 +5,8 @@
       siteName: "Yes, it's a problem",
       siteSub: "DNS と TLS の確認",
       pocTitle: "この PoC について",
-      pocBody: "このページは、DNS の委任応答と TLS の証明書検証を組み合わせた PoC です。委任応答に含まれる ADDITIONAL グルーを使うリゾルバは、正規のネームサーバーではなく攻撃者のネームサーバーへ到達します。攻撃者のサーバーは回収した eMudhra 中間 CA の秘密鍵で署名した証明書を提示し、TLS クライアントが受理する場合があります。",
-      pocBody2: "下の 2 つのボタンで、それぞれの段階をこのブラウザーから実行できます。このページはそれぞれの結果と、DNS と TLS を組み合わせた結果を表示します。リクエストが失敗したとき、理由はこのページからは分かりません。fetch() は証明書エラーの内容を JavaScript に渡さないため、証明書の拒否と通信の失敗は区別できません。空手形銀行と Kirimochi は架空のサービスで、実際の振込やインストールは行われません。",
+      pocBody: "このページは、DNS の委任応答と TLS の証明書検証を組み合わせた PoC です。委任応答に含まれる ADDITIONAL グルーを使うリゾルバは、正規のネームサーバーではなく攻撃者のネームサーバーへ到達します。攻撃者のサーバーは回収した eMudhra 中間 CA の秘密鍵で署名した証明書を提示し、TLS クライアントが受理する場合があります。このラボの provider は生成したネームサーバー名についても権威を持つため、この確認は provider が ADDITIONAL に誤った A を入れる状況の模擬であり、厳密な out-of-bailiwick の失敗ではありません。",
+      pocBody2: "上の 2 つのボタンで、それぞれの段階をこのブラウザーから実行できます。このページはそれぞれの結果と、DNS と TLS を組み合わせた結果を表示します。リクエストが失敗したとき、理由はこのページからは分かりません。fetch() は証明書エラーの内容を JavaScript に渡さないため、証明書の拒否と通信の失敗は区別できません。空手形銀行と Kirimochi は架空のサービスで、実際の振込やインストールは行われません。",
       researchLink: "元の調査（第三者による）",
       checkTitle: "確認",
       checkLead: "各ボタンを押すと、検証用エンドポイントへ HTTPS リクエストを 1 回送ります。結果はこのページ内に表示されます。",
@@ -14,7 +14,7 @@
       dnsCheckBody: "ランダムなサブドメインへ HTTPS で接続し、どちらのネームサーバーが応答したかを表示します。",
       dnsCheckBtn: "DNS を確認",
       tlsCheckTitle: "TLS 検証",
-      tlsCheckBody: "MITM ホストへ接続します。接続が完了したときは、提示された証明書を表示します。完了しないときは、証明書の拒否と通信の失敗を区別できません。",
+      tlsCheckBody: "MITM ホストへ接続します。接続が完了したときは、受理した証明書が偽造か正規かを表示します。完了しないときは、証明書の拒否と通信の失敗を区別できません。",
       tlsCheckBtn: "TLS を確認",
       verdictTitle: "結果",
       demosTitle: "デモ",
@@ -35,19 +35,18 @@
       verdictDnsSafeTlsUnknown: "判定不能: 正規のネームサーバーが応答しましたが、TLS の結果は判定できません。",
       verdictBadButValid: "注意: 偽のネームサーバーが応答しましたが、TLS は正規の証明書を受理しました。",
       verdictDanger: "危険: 偽のネームサーバーが応答し、TLS は偽造証明書を受理しました。",
-      verdictStopped: "危険の可能性あり: 偽のネームサーバーへの到達後、TLS の確認は完了しませんでした。証明書の拒否と通信の失敗は区別できないため、どちらが起きたかはこのページからは分かりません。",
+      verdictStopped: "危険の可能性あり: 偽のネームサーバーに到達したものの、TLS の確認は完了しませんでした。証明書の拒否と通信の失敗は区別できないため、どちらが起きたかはこのページからは分かりません。",
       verdictUnknownDnsValid: "注意: TLS は正規の証明書を受理しましたが、DNS の結果は判定できません。",
       verdictTlsOnlyDnsUnknown: "危険: TLS は偽造証明書を受理しましたが、DNS の結果は判定できません。",
       verdictUnknown: "判定不能: どちらの結果も得られませんでした。",
-      dnsButtonBusy: "確認中...",
-      tlsButtonBusy: "確認中..."
+      verdictNotRun: "未確認: DNS と TLS の両方を確認してください。"
     },
     en: {
       siteName: "Yes, it's a problem",
       siteSub: "DNS and TLS checks",
       pocTitle: "About this PoC",
-      pocBody: "This page is a PoC that combines DNS delegation responses with TLS certificate verification. A resolver that uses the ADDITIONAL glue in the delegation response reaches the attacker's nameserver instead of the legitimate one. The attacker's server presents a certificate signed with a recovered eMudhra intermediate CA private key, which a TLS client may accept.",
-      pocBody2: "The two buttons below run each step from this browser. The page shows each result and the combined DNS and TLS result. When a request fails, the page cannot say why: fetch() does not expose certificate errors, so certificate rejection and connection failure are indistinguishable. Karategata Banking and Kirimochi are fictional services. No real transfer or installation is made.",
+      pocBody: "This page is a PoC that combines DNS delegation responses with TLS certificate verification. A resolver that uses the ADDITIONAL glue in the delegation response reaches the attacker's nameserver instead of the legitimate one. The attacker's server presents a certificate signed with a recovered eMudhra intermediate CA private key, which a TLS client may accept. In this lab the provider is also authoritative for the generated nameserver name, so the check models a provider that puts a false A record in ADDITIONAL; it is not a strict out-of-bailiwick failure.",
+      pocBody2: "The two buttons above run each step from this browser. The page shows each result and the combined DNS and TLS result. When a request fails, the page cannot say why: fetch() does not expose certificate errors, so certificate rejection and connection failure are indistinguishable. Karategata Banking and Kirimochi are fictional services. No real transfer or installation is made.",
       researchLink: "Original research (third party)",
       checkTitle: "Checks",
       checkLead: "Each button sends one HTTPS request to a check endpoint. Results are shown on this page.",
@@ -55,7 +54,7 @@
       dnsCheckBody: "Connects to a random subdomain over HTTPS and shows which nameserver answered.",
       dnsCheckBtn: "Check DNS",
       tlsCheckTitle: "TLS verification",
-      tlsCheckBody: "Connects to the MITM host. If the connection completes, the page shows which certificate was presented. If it does not complete, certificate rejection and connection failure cannot be distinguished.",
+      tlsCheckBody: "Connects to the MITM host. If the connection completes, the page shows whether the accepted certificate was forged or legitimate. If it does not complete, certificate rejection and connection failure cannot be distinguished.",
       tlsCheckBtn: "Check TLS",
       verdictTitle: "Result",
       demosTitle: "Demos",
@@ -80,8 +79,7 @@
       verdictUnknownDnsValid: "WARNING: TLS accepted the legitimate certificate, but the DNS result is inconclusive.",
       verdictTlsOnlyDnsUnknown: "DANGER: TLS accepted the forged certificate, but the DNS result is inconclusive.",
       verdictUnknown: "INCONCLUSIVE: Neither result could be determined.",
-      dnsButtonBusy: "Checking...",
-      tlsButtonBusy: "Checking..."
+      verdictNotRun: "NOT CHECKED: Run both the DNS and TLS checks."
     }
   };
 
@@ -114,7 +112,6 @@
     lang = next;
     try { localStorage.setItem("yip-lang", lang); } catch (_) {}
     apply();
-    window.dispatchEvent(new CustomEvent("yip-lang", { detail: lang }));
   }
-  window.YIP_I18N = { t, apply, setLang, getLang: () => lang };
+  window.YIP_I18N = { t, apply, setLang };
 })();

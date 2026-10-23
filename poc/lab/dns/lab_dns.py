@@ -227,8 +227,8 @@ def main():
     ap.add_argument("--provider-ip", default=None)
     ap.add_argument("--ttl", default="0")
     ap.add_argument("--log", default=None)
-    ap.add_argument("--challenge-file", default=None)
-    ap.add_argument("--tcp", action="store_true", help="also listen on TCP")
+    ap.add_argument("--challenge-file", default=None,
+                    help="JSON map of TXT challenges for DNS-01 (optional)")
     args = ap.parse_args()
 
     cfg = {
@@ -243,11 +243,7 @@ def main():
         "challenge_file": args.challenge_file,
     }
     resolver = LabResolver(cfg, args.role)
-    servers = [DNSServer(resolver, address=args.bind, port=args.port, tcp=False)]
-    if args.tcp:
-        servers.append(DNSServer(resolver, address=args.bind, port=args.port, tcp=True))
-    for srv in servers:
-        srv.start()
+    DNSServer(resolver, address=args.bind, port=args.port, tcp=False).start()
     print("lab_dns role=%s bind=%s:%s zone=%s child=%s" %
           (args.role, args.bind, args.port, args.zone, resolver.child), flush=True)
     print("ready", flush=True)

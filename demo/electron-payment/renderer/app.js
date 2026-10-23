@@ -32,7 +32,29 @@
   }
 
   function isCertError(message) {
-    return /ERR_CERT|CERT_|AUTHORITY|REVOKED/i.test(String(message || ""));
+    return /ERR_CERT_[A-Z_]+/.test(String(message || ""));
+  }
+
+  function hideReceived() {
+    show($("received"), false);
+  }
+
+  function isQuote(data) {
+    return !!data && typeof data === "object" &&
+      typeof data.merchant === "string" &&
+      typeof data.account === "string" &&
+      Number.isFinite(Number(data.amount));
+  }
+
+  function handleNetFailure(message, failKey) {
+    if (isCertError(message)) {
+      showSafe();
+      setStatus("", "ok");
+    } else {
+      clearNotices();
+      hideReceived();
+      setStatus(t(failKey), "warn");
+    }
   }
 
   function renderExpected() {
@@ -64,6 +86,7 @@
   function showSafe() {
     show($("danger"), false);
     show($("safe"), true);
+    hideReceived();
   }
 
   async function getQuote() {
@@ -78,13 +101,13 @@
       const res = await window.kbc.quote();
       if (!res.ok) {
         console.error("quote failed:", res.error || ("HTTP " + res.status));
-        if (isCertError(res.error)) {
-          showSafe();
-          setStatus("", "ok");
-        } else {
-          clearNotices();
-          setStatus(t("quoteFailed"), "warn");
-        }
+        handleNetFailure(res.error, "quoteFailed");
+        return;
+      }
+      if (!res.jsonValid || !isQuote(res.data)) {
+        clearNotices();
+        hideReceived();
+        setStatus(t("quoteFailed"), "warn");
         return;
       }
       quote = res.data;
@@ -100,13 +123,7 @@
     } catch (e) {
       const message = String(e && e.message ? e.message : e);
       console.error("request failed:", message);
-      if (isCertError(message)) {
-        showSafe();
-        setStatus("", "ok");
-      } else {
-        clearNotices();
-        setStatus(t("quoteFailed"), "warn");
-      }
+      handleNetFailure(message, "quoteFailed");
     } finally {
       $("quote-btn").disabled = false;
     }
@@ -120,34 +137,28 @@
       const res = await window.kbc.pay();
       if (!res.ok) {
         console.error("payment failed:", res.error || ("HTTP " + res.status));
-        if (isCertError(res.error)) {
-          showSafe();
-          setStatus("", "ok");
-        } else {
-          clearNotices();
-          setStatus(t("requestFailed"), "warn");
-        }
+        handleNetFailure(res.error, "requestFailed");
+        return;
+      }
+      if (!res.jsonValid) {
+        clearNotices();
+        hideReceived();
+        setStatus(t("requestFailed"), "warn");
         return;
       }
       const data = res.data || {};
       if (data.account || data.amount || data.merchant) renderQuote(data);
       if (isTampered(data)) {
         showDanger();
-        setStatus(t("paid") + "（" + t("receipt") + " " + (data.receipt || "-") + "）", "bad");
+        setStatus(t("paidWith").replace("%s", data.receipt || "-"), "bad");
       } else {
         clearNotices();
-        setStatus(t("paid") + "（" + t("receipt") + " " + (data.receipt || "-") + "）", "ok");
+        setStatus(t("paidWith").replace("%s", data.receipt || "-"), "ok");
       }
     } catch (e) {
       const message = String(e && e.message ? e.message : e);
       console.error("request failed:", message);
-      if (isCertError(message)) {
-        showSafe();
-        setStatus("", "ok");
-      } else {
-        clearNotices();
-        setStatus(t("requestFailed"), "warn");
-      }
+      handleNetFailure(message, "requestFailed");
     } finally {
       $("pay-btn").disabled = false;
     }

@@ -110,7 +110,7 @@ def main(argv=None):
         status, headers, manifest_bytes = fetch(conn, "/manifest.json", host)
         print("[1/4] GET /manifest.json      -> %d (%d bytes)" % (status, len(manifest_bytes)))
         if status != 200:
-            eprint("kirimochi: failed to fetch manifest")
+            eprint("INCONCLUSIVE: could not fetch the manifest; no package was installed.")
             return 3
         manifest = json.loads(manifest_bytes.decode("utf-8"))
         signature = headers.get("x-kirimochi-signature", "")
@@ -120,13 +120,13 @@ def main(argv=None):
         status, _, key_bytes = fetch(conn, key_url, host)
         print("[2/4] GET %-19s -> %d (%d bytes)" % (key_url, status, len(key_bytes)))
         if status != 200:
-            eprint("kirimochi: failed to fetch public key")
+            eprint("INCONCLUSIVE: could not fetch the public key; no package was installed.")
             return 3
 
         status, _, pkg = fetch(conn, manifest.get("tarball_url") or "/package.tar.gz", host)
         print("[3/4] GET %-19s -> %d (%d bytes)" % (manifest.get("tarball_url") or "/package.tar.gz", status, len(pkg)))
         if status != 200:
-            eprint("kirimochi: failed to fetch package payload")
+            eprint("INCONCLUSIVE: could not fetch the package payload; no package was installed.")
             return 3
     except ssl.SSLCertVerificationError as e:
         print()
@@ -142,7 +142,7 @@ def main(argv=None):
         return 2
     except Exception as e:
         print()
-        print("Error: %s: %s" % (type(e).__name__, e))
+        print("INCONCLUSIVE: %s: %s; no package was installed." % (type(e).__name__, e))
         return 3
 
     expected = manifest.get("tarball_sha256", "")
@@ -152,22 +152,24 @@ def main(argv=None):
     print("      Expected: %s" % expected)
     print("      Actual  : %s" % actual)
     if not ok_hash:
-        eprint("kirimochi: checksum mismatch")
+        eprint("BLOCKED: checksum mismatch; no package was installed.")
         return 3
 
     ok_sig, sig_detail = verify_with_openssl(manifest_bytes, signature, key_bytes)
     if ok_sig is None:
         print("      Signature: UNAVAILABLE (%s)" % sig_detail)
+        print("INCONCLUSIVE: the signature could not be checked; no package was installed.")
         return 3
     print("      Signature: %s (registry-provided key; unpinned)" % ("PASS" if ok_sig else "FAIL"))
     if not ok_sig:
         print("      %s" % sig_detail)
+        print("BLOCKED: signature verification failed; no package was installed.")
         return 3
 
     print()
     print("KIRIMOCHI PoC")
-    print("  Oh no! Your DNS is poisoned, so you're on a forged network path!")
-    print("  Uh-oh! Your environment cannot detect forged application signatures!")
+    print("  Oh no! If this registry was reached over a forged path, this client could not tell.")
+    print("  Uh-oh! The registry supplied the trust key; a forged signature would not be detected.")
     print()
     print("  The registry supplied both the package and the public key,")
     print("  so signature verification passed despite the untrusted source.")
