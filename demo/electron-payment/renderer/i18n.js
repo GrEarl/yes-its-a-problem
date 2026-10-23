@@ -13,15 +13,15 @@
       quoteBtn: "内容を確認",
       payBtn: "送金する",
       receivedTitle: "受信した内容",
-      dangerDns: "危険: 送金先、口座、金額が正規の値と一致しません。",
+      dangerMismatch: "危険: 送金先、口座、金額のいずれかが振込内容と一致しません。",
       safeBody: "安全: 証明書の検証に失敗したため、接続は確立されませんでした。",
       electronUnavailable: "Electron で起動してください。",
       loading: "取得中...",
       quoteFailed: "判定不能: 振込内容を取得できませんでした。",
-      requestFailed: "判定不能: 通信に失敗しました。",
+      requestFailed: "判定不能: 通信または応答に問題がありました。",
       quoteOk: "振込内容を受信しました。",
       tampered: "送金先、口座、金額のいずれかが一致しません。",
-      paidWith: "デモ送金を完了しました。（デモ領収書 %s）"
+      paidWith: "PoC の送金を完了しました。（PoC 領収書 %s）"
     },
     en: {
       ribbon: "PoC",
@@ -35,15 +35,15 @@
       quoteBtn: "Review",
       payBtn: "Send",
       receivedTitle: "Received",
-      dangerDns: "DANGER: The payee, account, or amount does not match the expected values.",
+      dangerMismatch: "DANGER: The payee, account, or amount does not match the expected values.",
       safeBody: "SAFE: Certificate verification failed, so the connection was not established.",
       electronUnavailable: "Start this app with Electron.",
       loading: "Fetching...",
       quoteFailed: "INCONCLUSIVE: Could not fetch the transfer details.",
-      requestFailed: "INCONCLUSIVE: The request failed.",
+      requestFailed: "INCONCLUSIVE: There was a problem with the request or the response.",
       quoteOk: "Transfer details received.",
       tampered: "The payee, account, or amount does not match.",
-      paidWith: "Demo payment completed. (Demo receipt %s)"
+      paidWith: "PoC payment completed. (PoC receipt %s)"
     }
   };
 

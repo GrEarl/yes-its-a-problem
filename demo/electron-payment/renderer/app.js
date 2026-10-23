@@ -32,7 +32,7 @@
   }
 
   function isCertError(message) {
-    return /ERR_CERT_[A-Z_]+/.test(String(message || ""));
+    return /ERR_CERT_[A-Z_]+|ERR_CERTIFICATE_TRANSPARENCY_REQUIRED/.test(String(message || ""));
   }
 
   function hideReceived() {
@@ -147,7 +147,13 @@
         return;
       }
       const data = res.data || {};
-      if (data.account || data.amount || data.merchant) renderQuote(data);
+      if (!isQuote(data)) {
+        clearNotices();
+        hideReceived();
+        setStatus(t("requestFailed"), "warn");
+        return;
+      }
+      renderQuote(data);
       if (isTampered(data)) {
         showDanger();
         setStatus(t("paidWith").replace("%s", data.receipt || "-"), "bad");

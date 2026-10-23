@@ -64,8 +64,12 @@ def verify_with_openssl(manifest_bytes, signature_b64, public_key_pem):
         p = os.path.join(td, "publisher.pem")
         with open(m, "wb") as f:
             f.write(manifest_bytes)
+        try:
+            sig = base64.b64decode(signature_b64)
+        except Exception as e:
+            return None, "invalid signature encoding: %s" % e
         with open(s, "wb") as f:
-            f.write(base64.b64decode(signature_b64))
+            f.write(sig)
         with open(p, "wb") as f:
             f.write(public_key_pem)
         res = subprocess.run([openssl, "dgst", "-sha256", "-verify", p, "-signature", s, m],
@@ -74,7 +78,7 @@ def verify_with_openssl(manifest_bytes, signature_b64, public_key_pem):
 
 
 def parse_args(argv):
-    ap = argparse.ArgumentParser(prog=DEMO_NAME, description="Kirimochi package manager demo")
+    ap = argparse.ArgumentParser(prog=DEMO_NAME, description="Kirimochi package manager PoC")
     ap.add_argument("command", choices=["install"], help="demo command ('install' only)")
     ap.add_argument("name", nargs="?", default="demo-lib", help="package name (default: demo-lib)")
     ap.add_argument("--url", default=DEFAULT_URL, help="registry URL")
@@ -168,8 +172,9 @@ def main(argv=None):
 
     print()
     print("KIRIMOCHI PoC")
-    print("  Oh no! If this registry was reached over a forged path, this client could not tell.")
-    print("  Uh-oh! The registry supplied the trust key; a forged signature would not be detected.")
+    print("  Oh no! Your DNS is poisoned, so you're on a forged network path!")
+    print("  Uh-oh! Your environment cannot detect forged application signatures!")
+    print("  (PoC: this client does not check DNS itself; the text states the scenario.)")
     print()
     print("  The registry supplied both the package and the public key,")
     print("  so signature verification passed despite the untrusted source.")

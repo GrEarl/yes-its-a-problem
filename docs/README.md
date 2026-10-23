@@ -24,4 +24,4 @@ The TLS check connects to `https://login.v.lab.../tls-probe`. `{"tls":"forged"}`
 
 For the DNS check to return `fake`, the fake nameserver must serve a valid certificate for the random probe name and the forged certificate for the MITM host. Otherwise the browser rejects the probe response before the page can read it.
 
-The result shows the combination of the DNS and TLS states, including the intermediate state where DNS reached the fake nameserver but TLS did not complete. Each verdict starts with `SAFE`, `DANGER`, `WARNING`, `POSSIBLE DANGER`, or `INCONCLUSIVE`; the page does not mark a failed TLS request as safe. If only one check has run, the result says `NOT CHECKED`.
+The result shows the combination of the DNS and TLS states, including the intermediate state where DNS reached the fake nameserver but TLS did not complete. Each verdict starts with `SAFE`, `DANGER`, `WARNING`, `POSSIBLE DANGER`, or `INCONCLUSIVE`; the page does not mark a failed TLS request as safe. If only one check has run, the result says `INCOMPLETE`.

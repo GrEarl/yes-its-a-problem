@@ -7,7 +7,6 @@ compute 1*G, 2*G, ... until the public point matches.
 
 Usage:
     python3 recover_keys.py <cert.pem> [<cert.pem> ...]
-    python3 recover_keys.py ../certs/intermediates/*.pem
 Writes <name>.key.pem next to each input certificate.
 """
 import sys, os

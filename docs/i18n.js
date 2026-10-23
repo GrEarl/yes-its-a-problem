@@ -3,9 +3,9 @@
   const dict = {
     ja: {
       siteName: "Yes, it's a problem",
-      siteSub: "DNS と TLS の確認",
+      siteSub: "PoC: DNS と TLS の確認。空手形銀行と Kirimochi は架空のサービスで、実際の振込やインストールは行われません。",
       pocTitle: "この PoC について",
-      pocBody: "このページは、DNS の委任応答と TLS の証明書検証を組み合わせた PoC です。委任応答に含まれる ADDITIONAL グルーを使うリゾルバは、正規のネームサーバーではなく攻撃者のネームサーバーへ到達します。攻撃者のサーバーは回収した eMudhra 中間 CA の秘密鍵で署名した証明書を提示し、TLS クライアントが受理する場合があります。このラボの provider は生成したネームサーバー名についても権威を持つため、この確認は provider が ADDITIONAL に誤った A を入れる状況の模擬であり、厳密な out-of-bailiwick の失敗ではありません。",
+      pocBody: "このページは、DNS の委任応答と TLS の証明書検証を組み合わせた PoC です。委任応答に含まれる ADDITIONAL グルーを使うリゾルバは、正規のネームサーバーではなく攻撃者のネームサーバーへ到達します。攻撃者のサーバーは回収した eMudhra 中間 CA の秘密鍵で署名した証明書を提示し、TLS クライアントが受理する場合があります。このラボの provider は生成したネームサーバー名についても権威を持つため、この確認は provider が ADDITIONAL に誤った A レコードを入れる状況を模擬したものであり、厳密な out-of-bailiwick の失敗ではありません。",
       pocBody2: "上の 2 つのボタンで、それぞれの段階をこのブラウザーから実行できます。このページはそれぞれの結果と、DNS と TLS を組み合わせた結果を表示します。リクエストが失敗したとき、理由はこのページからは分かりません。fetch() は証明書エラーの内容を JavaScript に渡さないため、証明書の拒否と通信の失敗は区別できません。空手形銀行と Kirimochi は架空のサービスで、実際の振込やインストールは行われません。",
       researchLink: "元の調査（第三者による）",
       checkTitle: "確認",
@@ -26,7 +26,7 @@
       tlsPrefix: "TLS: ",
       dnsSafe: "正規のネームサーバーが応答しました。",
       dnsBad: "偽のネームサーバーが応答しました。",
-      dnsUnknown: "検証用エンドポイントに接続できないか、応答が不正でした。",
+      dnsUnknown: "検証用エンドポイントに接続できなかったか、応答が不正でした。",
       tlsBad: "偽造証明書を受理しました。",
       tlsGood: "正規の証明書を受理しました。",
       tlsUnknown: "接続が完了しませんでした。証明書の拒否と通信の失敗は区別できません。",
@@ -39,11 +39,11 @@
       verdictUnknownDnsValid: "注意: TLS は正規の証明書を受理しましたが、DNS の結果は判定できません。",
       verdictTlsOnlyDnsUnknown: "危険: TLS は偽造証明書を受理しましたが、DNS の結果は判定できません。",
       verdictUnknown: "判定不能: どちらの結果も得られませんでした。",
-      verdictNotRun: "未確認: DNS と TLS の両方を確認してください。"
+      verdictNotRun: "未判定: もう一方の確認を実行すると、組み合わせた結果が表示されます。"
     },
     en: {
       siteName: "Yes, it's a problem",
-      siteSub: "DNS and TLS checks",
+      siteSub: "PoC: DNS and TLS checks. Karategata Banking and Kirimochi are fictional; no real transfer or installation is made.",
       pocTitle: "About this PoC",
       pocBody: "This page is a PoC that combines DNS delegation responses with TLS certificate verification. A resolver that uses the ADDITIONAL glue in the delegation response reaches the attacker's nameserver instead of the legitimate one. The attacker's server presents a certificate signed with a recovered eMudhra intermediate CA private key, which a TLS client may accept. In this lab the provider is also authoritative for the generated nameserver name, so the check models a provider that puts a false A record in ADDITIONAL; it is not a strict out-of-bailiwick failure.",
       pocBody2: "The two buttons above run each step from this browser. The page shows each result and the combined DNS and TLS result. When a request fails, the page cannot say why: fetch() does not expose certificate errors, so certificate rejection and connection failure are indistinguishable. Karategata Banking and Kirimochi are fictional services. No real transfer or installation is made.",
@@ -79,7 +79,7 @@
       verdictUnknownDnsValid: "WARNING: TLS accepted the legitimate certificate, but the DNS result is inconclusive.",
       verdictTlsOnlyDnsUnknown: "DANGER: TLS accepted the forged certificate, but the DNS result is inconclusive.",
       verdictUnknown: "INCONCLUSIVE: Neither result could be determined.",
-      verdictNotRun: "NOT CHECKED: Run both the DNS and TLS checks."
+      verdictNotRun: "INCOMPLETE: Run the other check to see the combined result."
     }
   };
 

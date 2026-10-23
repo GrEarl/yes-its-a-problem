@@ -27,7 +27,7 @@ DNS の委任応答と TLS の証明書検証を組み合わせた PoC です。
 
 `simulate.py` は provider の応答を使い、安全な経路と脆弱な経路を模擬します。実際のリゾルバの判定ではありません。
 
-ラボの provider は生成したネームサーバー名 `ns<hash>.true.<zone>` についても権威を持ちます。そのため、このテストは provider が ADDITIONAL に嘘の A を入れる状況を模擬するもので、準拠したリゾルバが out-of-bailiwick のグルーを受け入れることを示すものではありません。
+ラボの provider は生成したネームサーバー名 `ns<hash>.true.<zone>` についても権威を持ちます。そのため、このテストは provider が ADDITIONAL に誤った A レコードを入れる状況を模擬するもので、準拠したリゾルバが out-of-bailiwick のグルーを受け入れることを示すものではありません。
 
 1. provider が委任応答で sibling NS と 198.51.100.66 の ADDITIONAL A を返す。
 2. 安全な経路はグルーを無視し、provider へ直接問い合わせて 192.0.2.10 を受け取る。

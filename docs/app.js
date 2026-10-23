@@ -44,8 +44,8 @@
       return;
     }
 
-    const dns = state.dns ? state.dns.key : "dnsUnknown";
-    const tls = state.tls ? state.tls.key : "tlsUnknown";
+    const dns = state.dns.key;
+    const tls = state.tls.key;
     const key = {
       "dnsSafe:tlsGood": "verdictClean",
       "dnsSafe:tlsBad": "verdictTlsOnly",
