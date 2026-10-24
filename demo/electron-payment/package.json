@@ -1,6 +1,6 @@
 {
   "name": "karategata-banking-demo",
-  "version": "0.1.0-beta.2",
+  "version": "0.1.0-beta.3",
   "description": "Karategata Banking Corporation / 空手形銀行 (KBC). Electron payment demo for the yes-its-a-problem PoC.",
   "main": "main.js",
   "private": true,
@@ -15,6 +15,12 @@
       "preload.js",
       "renderer/**/*"
     ],
+    "extraResources": [
+      {
+        "from": "../../LICENSE",
+        "to": "LICENSE.yes-its-a-problem.txt"
+      }
+    ],
     "directories": {
       "output": "dist"
     },
@@ -23,7 +29,7 @@
         "dmg",
         "zip"
       ],
-      "identity": null,
+      "identity": "-",
       "category": "public.app-category.finance"
     },
     "win": {

@@ -13,6 +13,7 @@ function loadApiUrl() {
   for (const arg of process.argv) {
     if (arg.startsWith("--kbc-api-url=")) apiUrl = arg.slice("--kbc-api-url=".length);
   }
+  if (new URL(apiUrl).protocol !== "https:") throw new Error("KBC API URL must use HTTPS.");
   return apiUrl;
 }
 
@@ -22,7 +23,7 @@ async function fetchJson(url, options = {}) {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), 12000);
   try {
-    const res = await net.fetch(url, { cache: "no-store", signal: controller.signal, ...options });
+    const res = await net.fetch(url, { cache: "no-store", signal: controller.signal, ...options, redirect: "error" });
     const text = await res.text();
     let data, jsonValid = true;
     try { data = JSON.parse(text); } catch (_) { data = { raw: text.slice(0, 500) }; jsonValid = false; }

@@ -19,7 +19,7 @@ import sys
 import tempfile
 from urllib.parse import urlparse
 
-VERSION = "0.1.0-beta.2"
+VERSION = "0.1.0-beta.3"
 PROG = "kirimochi"
 DEFAULT_URL = "https://pkg.v.lab.yes-its-a-problem.iamwonderingif.com"
 SITE_URL = "https://yes-its-a-problem.iamwonderingif.com/"
@@ -81,7 +81,8 @@ def verify_with_openssl(manifest_bytes, signature_b64, public_key_pem):
 def parse_args(argv):
     ap = argparse.ArgumentParser(prog=PROG, description="Kirimochi package manager PoC")
     ap.add_argument("command", choices=["install"], help="demo command ('install' only)")
-    ap.add_argument("name", nargs="?", default="demo-lib", help="package name (default: demo-lib)")
+    ap.add_argument("name", nargs="?", default="demo-lib", choices=["demo-lib"],
+                    help="demo package (default: demo-lib)")
     ap.add_argument("--url", default=DEFAULT_URL, help="registry URL")
     ap.add_argument("--connect", help="connect directly to HOST:PORT (local lab)")
     return ap.parse_args(argv)
@@ -107,6 +108,12 @@ def main(argv=None):
     print("PoC: Kirimochi and this registry are fictional. No package is installed.")
     print("PoC site: %s" % SITE_URL)
     print("Registry: %s" % args.url)
+    if args.connect:
+        print("Connect : %s (--connect; registry hostname DNS bypassed)" % args.connect)
+    else:
+        print("Connect : registry URL (no --connect override)")
+    for name in ("SSL_CERT_FILE", "SSL_CERT_DIR"):
+        print("Trust   : %s %s (process environment)" % (name, "set" if name in os.environ else "unset"))
     print("Package : %s" % args.name)
     print("-" * 64)
 
@@ -120,6 +127,9 @@ def main(argv=None):
             eprint("INCONCLUSIVE: could not fetch the manifest; no package was installed.")
             return 3
         manifest = json.loads(manifest_bytes.decode("utf-8"))
+        if manifest.get("name") != args.name:
+            eprint("INCONCLUSIVE: manifest package name does not match demo-lib; no package was installed.")
+            return 3
         signature = headers.get("x-kirimochi-signature", "")
         key_url = manifest.get("public_key_url") or "/public_key.pem"
         print("      Package: %s@%s" % (manifest.get("name", "?"), manifest.get("version", "?")))
@@ -137,16 +147,13 @@ def main(argv=None):
             return 3
     except ssl.SSLCertVerificationError as e:
         print()
-        print("SAFE: TLS certificate verification failed; the connection was blocked and no package was installed.")
-        print("This runtime rejected the forged certificate chain.")
-        print("Detail: %s" % (e.reason or e))
-        print("No files were installed.")
+        print("REJECTED: TLS certificate verification failed; no package was installed.")
+        print("Detail: %s" % (getattr(e, "verify_message", None) or str(e)))
         return 2
     except ssl.SSLError as e:
         print()
         print("INCONCLUSIVE: TLS error: %s; no package was installed." % e)
-        print("No files were installed.")
-        return 2
+        return 3
     except Exception as e:
         print()
         print("INCONCLUSIVE: %s: %s; no package was installed." % (type(e).__name__, e))
@@ -174,15 +181,9 @@ def main(argv=None):
         return 3
 
     print()
-    print("KIRIMOCHI PoC")
-    print("  Scenario: the network path is forged and DNS may be poisoned.")
-    print("  Uh-oh! Your environment cannot detect forged application signatures!")
-    print("  (PoC: this client does not check DNS itself; the text states the scenario.)")
-    print()
-    print("  The registry supplied both the package and the public key,")
-    print("  so signature verification passed despite the untrusted source.")
-    print()
-    print("DANGER: signature verification passed, but the registry-provided key is unpinned and the source is untrusted; no package was installed.")
+    print("OBSERVED: TLS verification, package checksum, and manifest signature passed; no package was installed.")
+    print("The registry supplied the unpinned verification key, so the signature's trust depends on the registry.")
+    print("This result does not demonstrate signature forgery or DNS poisoning.")
     return 0
 
 

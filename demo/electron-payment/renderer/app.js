@@ -36,6 +36,7 @@
   }
 
   function hideReceived() {
+    quote = null;
     show($("received"), false);
   }
 
@@ -43,7 +44,7 @@
     return !!data && typeof data === "object" &&
       typeof data.merchant === "string" &&
       typeof data.account === "string" &&
-      Number.isFinite(Number(data.amount));
+      Number.isFinite(data.amount) && data.currency === "JPY";
   }
 
   function handleNetFailure(message, failKey) {
@@ -65,6 +66,7 @@
   }
 
   function renderQuote(data) {
+    quote = data;
     $("recv-payee").textContent = data.merchant || "-";
     $("recv-account").textContent = data.account || "-";
     $("recv-amount").textContent = money(data.amount);
@@ -96,6 +98,8 @@
     }
     $("quote-btn").disabled = true;
     $("pay-btn").disabled = true;
+    clearNotices();
+    hideReceived();
     setStatus(t("loading"), "");
     try {
       const res = await window.kbc.quote();
@@ -110,8 +114,7 @@
         setStatus(t("quoteFailed"), "warn");
         return;
       }
-      quote = res.data;
-      renderQuote(quote);
+      renderQuote(res.data);
       if (isTampered(quote)) {
         showDanger();
         setStatus(t("tampered"), "bad");
@@ -131,7 +134,10 @@
 
   async function pay() {
     if (!window.kbc || !quote) return;
+    $("quote-btn").disabled = true;
     $("pay-btn").disabled = true;
+    clearNotices();
+    hideReceived();
     setStatus(t("loading"), "");
     try {
       const res = await window.kbc.pay();
@@ -140,14 +146,8 @@
         handleNetFailure(res.error, "requestFailed");
         return;
       }
-      if (!res.jsonValid) {
-        clearNotices();
-        hideReceived();
-        setStatus(t("requestFailed"), "warn");
-        return;
-      }
-      const data = res.data || {};
-      if (!isQuote(data)) {
+      const data = res.data;
+      if (!res.jsonValid || !isQuote(data) || data.status !== "paid") {
         clearNotices();
         hideReceived();
         setStatus(t("requestFailed"), "warn");
@@ -166,7 +166,8 @@
       console.error("request failed:", message);
       handleNetFailure(message, "requestFailed");
     } finally {
-      $("pay-btn").disabled = false;
+      $("quote-btn").disabled = false;
+      $("pay-btn").disabled = !quote;
     }
   }
 

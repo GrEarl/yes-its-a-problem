@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Mock Kirimochi registry.
 
-Serves a manifest, a registry-generated public key, and an empty package payload.
-Manifest signatures use ECDSA via OpenSSL.
+Serves or exports a manifest, a registry-generated public key, and an empty
+package payload. Manifest signatures use ECDSA via OpenSSL.
 """
 import argparse
 import base64
@@ -86,21 +86,36 @@ def main():
     ap = argparse.ArgumentParser(description="Mock Kirimochi package registry")
     ap.add_argument("--bind", default="127.0.0.1", help="address to bind (default: 127.0.0.1)")
     ap.add_argument("--port", type=int, default=9445, help="port to listen on (default: 9445)")
-    ap.add_argument("--cert", required=True, help="path to TLS certificate")
-    ap.add_argument("--key", required=True, help="path to TLS private key")
+    ap.add_argument("--cert", help="path to TLS certificate (required to serve HTTPS)")
+    ap.add_argument("--key", help="path to TLS private key (required to serve HTTPS)")
+    ap.add_argument("--export", metavar="DIR", help="write public registry files and exit")
     args = ap.parse_args()
+    if not args.export and not (args.cert and args.key):
+        ap.error("--cert and --key are required unless --export is used")
     registry = Registry()
-    httpd = ThreadingHTTPServer((args.bind, args.port), Handler)
-    httpd.registry = registry
-    ctx = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
-    ctx.minimum_version = ssl.TLSVersion.TLSv1_2
-    ctx.load_cert_chain(certfile=args.cert, keyfile=args.key)
-    httpd.socket = ctx.wrap_socket(httpd.socket, server_side=True)
-    print("Kirimochi mock registry running on https://%s:%d" % (args.bind, args.port), flush=True)
-    try:
-        httpd.serve_forever()
-    except KeyboardInterrupt:
-        pass
+    with registry.tmp:
+        if args.export:
+            os.makedirs(args.export, exist_ok=True)
+            for name, body in (("manifest.json", registry.manifest_bytes),
+                               ("manifest.sig.b64", (registry.signature + "\n").encode("ascii")),
+                               ("public_key.pem", registry.public_key),
+                               ("package.tar.gz", registry.empty)):
+                with open(os.path.join(args.export, name), "wb") as f:
+                    f.write(body)
+            print("Public registry files written to %s; no private key exported." % args.export)
+            return
+
+        with ThreadingHTTPServer((args.bind, args.port), Handler) as httpd:
+            httpd.registry = registry
+            ctx = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
+            ctx.minimum_version = ssl.TLSVersion.TLSv1_2
+            ctx.load_cert_chain(certfile=args.cert, keyfile=args.key)
+            httpd.socket = ctx.wrap_socket(httpd.socket, server_side=True)
+            print("Kirimochi mock registry running on https://%s:%d" % (args.bind, httpd.server_port), flush=True)
+            try:
+                httpd.serve_forever()
+            except KeyboardInterrupt:
+                pass
 
 
 if __name__ == "__main__":
