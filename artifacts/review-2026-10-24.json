@@ -1,0 +1,768 @@
+{
+  "reviewed_at_jst": "2026-10-24T06:46:08+09:00",
+  "reviewed_commit": "91a4d06384fca8957c73ea9b36ea301fbc45e94a",
+  "scope": "Repository code, local macOS arm64 builds, public incident evidence, current issuer-signed CRLs. No production deployment or third-party exploitation.",
+  "assessment_ja": {
+    "publication": "既知のeMudhra事故とDNSグルー挙動を示す教育用ラボとして、明確な限定表示付きのソース公開は妥当。コードには公開証明書から危殆化CA秘密鍵を再構成する機能があるため、復元鍵を公開・VPSへ配置しない。DNSはシミュレーションで、実リゾルバの欠陥や同一通信の二段階成立は未実証。法域ごとの適法性は評価対象外。",
+    "tls_stage": "既存の同一アプリコードでElectron 36.9.5は偽造チェーンを受理、45.0.0はERR_CERT_AUTHORITY_INVALIDで拒否。証明書検証の無効化や独自ルート追加はElectron比較に使用していない。",
+    "dns_stage": "同梱テストは経路をハードコードしたシミュレーション。provider自身がNS名を管理するため、ADDITIONAL利用だけでbailiwick違反や権限境界越えを実証したことにはならない。",
+    "two_stage": "未実証。TLS実機比較はhost-resolver-rulesでローカルへ固定した。DNSから偽装HTTPSまでを実際の再帰リゾルバ経由で連結したテストは完了していない。",
+    "revocation": "対象の16証明書すべてを、署名が有効かつ取得時点で有効期間内の3つの発行CA CRLでca_compromiseとして確認。失効済みであることは全クライアントの拒否を意味しない。"
+  },
+  "findings": [
+    {
+      "id": "R1",
+      "priority": "high",
+      "title_ja": "DNSテストは実リゾルバの脆弱性を判定しない",
+      "files": [
+        "poc/lab/dns/lab_dns.py:120",
+        "poc/lab/dns/simulate.py:69"
+      ],
+      "evidence_ja": "simulate.pyは取得IPに接続せず、127.0.0.1のtrue-portとfake-portへ個別に問い合わせる。providerがNS名のAと委任を共に制御する。",
+      "recommendation_ja": "現状はDNS誘導のシミュレーションと記す。脆弱性再現を主張する場合は攻撃者の最小権限、実リゾルバ名・版・設定、権威問い合わせ記録、最終HTTPS通信を揃える。"
+    },
+    {
+      "id": "R2",
+      "priority": "high",
+      "title_ja": "偽造証明書を提示してもtls=validを返す起動方法がある",
+      "files": [
+        "poc/lab/http/lab_http.py:47",
+        "poc/lab/http/lab_http.py:109",
+        "docs/app.js:109"
+      ],
+      "evidence_ja": "偽造fullchainを--cert/--keyで渡し--cert-is-forgedを省略すると、証明書を受理した接続にtls=validを返すことを実接続で確認。レスポンスは証明書の独立検査ではなく設定の自己申告。",
+      "recommendation_ja": "証明書種別が未指定の場合を正規と扱わない。実際の証明書情報と設定を照合し、全起動例を統一する。"
+    },
+    {
+      "id": "R3",
+      "priority": "medium",
+      "title_ja": "DNSプローブの証明書とデプロイ説明が矛盾",
+      "files": [
+        "poc/PLAN.ja.md:59",
+        "poc/PLAN.ja.md:70",
+        "poc/lab/certs/make_leaf.py:26"
+      ],
+      "evidence_ja": "既定のリーフSANはlogin/pay/pkgのみ。ランダムprobe名をこのリーフで検証するとhostname mismatchを再現。偽造チェーンを使うとDNS観測がTLS拒否にも依存する。",
+      "recommendation_ja": "ランダムprobe名は正規のワイルドカード証明書、TLSデモ名は偽造チェーンとする実装方針にデプロイ説明を合わせる。SNI切り替えの既定対象はloginだけなので、pay/pkgへの適用も明示する。"
+    },
+    {
+      "id": "R4",
+      "priority": "medium",
+      "title_ja": "2つの別リクエストの結果は同じ通信の二段階成立の証拠ではない",
+      "files": [
+        "docs/app.js:76",
+        "docs/app.js:102",
+        "docs/i18n.js:48"
+      ],
+      "evidence_ja": "ランダムprobeと固定loginの解決・接続結果を組み合わせている。正規TLS接続の成功だけでは偽造証明書を拒否することも検証していない。",
+      "recommendation_ja": "経路観測、偽造チェーン受理の試験、全体安全性の主張を区別する。SAFE表示を結果の限定された記述にする。"
+    },
+    {
+      "id": "R5",
+      "priority": "informational",
+      "title_ja": "Kirimochiは信頼していない配布鍵を使う架空クライアント",
+      "files": [
+        "demo/fake-pkg/src/kirimochi.py:165"
+      ],
+      "evidence_ja": "レジストリが鍵と署名を両方供給する構成で署名検証が通る。実在するパッケージマネージャーや暗号署名アルゴリズムの破りを実証しない。既定のPython信頼ストアは拒否、AAAルートをこのプロセスに明示した場合のみ成功。"
+    },
+    {
+      "id": "R6",
+      "priority": "informational",
+      "title_ja": "AAAのCRLエントリ日時は収集済みメタデータと異なる",
+      "files": [
+        "artifacts/impacted-intermediates.json",
+        "artifacts/README.md"
+      ],
+      "evidence_ja": "今回取得したAAA CRLでは8件のrevocationDateが2025-05-14T00:00:00Z。同梱JSONは2026-10-19T10:35:36Z。どちらも失効状態は一致する。CRLエントリ日時と初回公表・配布日時を混同しない。"
+    }
+  ],
+  "publication_surface": {
+    "reachable_git_commits_scanned": 20,
+    "private_key_pem_or_common_token_marker_matches": 0,
+    "tracked_secret_key_or_env_paths": 0,
+    "local_private_key_files_checked_for_permissions": 11,
+    "all_private_key_files_owner_only": true,
+    "secrets_gitignored": true,
+    "scope_note": "PEM private-key markers and common GitHub/AWS access-key formats scanned in tracked files and all reachable Git blobs. This is a bounded scan, not a proof of absence of every credential format. Build workflow file allowlists were inspected; remote releases could not be inspected (GitHub connector returned 404).",
+    "current_working_tree_scan": {
+      "checked_at_jst": "2026-10-24T20:58:56+09:00",
+      "files_scanned": 107,
+      "private_key_pem_or_common_token_marker_matches": 0,
+      "symlinks": 0,
+      "scope": "Tracked and non-ignored untracked files in the current working tree; ignored secrets and .git were excluded. Checked PEM private-key markers and common GitHub/AWS token forms and sk-* markers.",
+      "secret_values_emitted": false
+    }
+  },
+  "tests": {
+    "bundled_dns_simulation": {
+      "status": "passed",
+      "safe_address": "192.0.2.10",
+      "simulated_vulnerable_address": "198.51.100.66",
+      "actual_recursive_resolver": false
+    },
+    "unbound_attempt": {
+      "status": "not_completed",
+      "reason": "OS denied binding a local authority to UDP port 53. No resolver conclusion drawn."
+    },
+    "certificate_evidence": {
+      "checked_at_utc": "2026-10-23T20:43:34.577797+00:00",
+      "source_metadata_equal": true,
+      "source_roots_equal": true,
+      "proof": [
+        {
+          "name": "EM-DV-TLS-CA-G3B",
+          "public_key_matches": true,
+          "proof_signature_valid": true,
+          "all_four_files_match_public_bundle": true,
+          "public_point_matches_small_scalar_range": true
+        },
+        {
+          "name": "EM-DV-TLS-CA-G3C",
+          "public_key_matches": true,
+          "proof_signature_valid": true,
+          "all_four_files_match_public_bundle": true,
+          "public_point_matches_small_scalar_range": true
+        },
+        {
+          "name": "EM-EV-TLS-CA-G3B",
+          "public_key_matches": true,
+          "proof_signature_valid": true,
+          "all_four_files_match_public_bundle": true,
+          "public_point_matches_small_scalar_range": true
+        },
+        {
+          "name": "EM-EV-TLS-CA-G3C",
+          "public_key_matches": true,
+          "proof_signature_valid": true,
+          "all_four_files_match_public_bundle": true,
+          "public_point_matches_small_scalar_range": true
+        },
+        {
+          "name": "EM-OV-CS-CA-G3B",
+          "public_key_matches": true,
+          "proof_signature_valid": true,
+          "all_four_files_match_public_bundle": true,
+          "public_point_matches_small_scalar_range": true
+        },
+        {
+          "name": "EM-OV-CS-CA-G3C",
+          "public_key_matches": true,
+          "proof_signature_valid": true,
+          "all_four_files_match_public_bundle": true,
+          "public_point_matches_small_scalar_range": true
+        },
+        {
+          "name": "EM-OV-TLS-CA-G3B",
+          "public_key_matches": true,
+          "proof_signature_valid": true,
+          "all_four_files_match_public_bundle": true,
+          "public_point_matches_small_scalar_range": true
+        },
+        {
+          "name": "EM-OV-TLS-CA-G3C",
+          "public_key_matches": true,
+          "proof_signature_valid": true,
+          "all_four_files_match_public_bundle": true,
+          "public_point_matches_small_scalar_range": true
+        }
+      ],
+      "intermediates": [
+        {
+          "name": "EM DV TLS CA - G3B",
+          "issuer": "emSign Root TLS CA - G3",
+          "fingerprint_and_issuer_signature_valid": true
+        },
+        {
+          "name": "EM DV TLS CA - G3B",
+          "issuer": "AAA Certificate Services",
+          "fingerprint_and_issuer_signature_valid": true
+        },
+        {
+          "name": "EM OV TLS CA - G3B",
+          "issuer": "emSign Root TLS CA - G3",
+          "fingerprint_and_issuer_signature_valid": true
+        },
+        {
+          "name": "EM OV TLS CA - G3B",
+          "issuer": "AAA Certificate Services",
+          "fingerprint_and_issuer_signature_valid": true
+        },
+        {
+          "name": "EM EV TLS CA - G3B",
+          "issuer": "emSign Root TLS CA - G3",
+          "fingerprint_and_issuer_signature_valid": true
+        },
+        {
+          "name": "EM EV TLS CA - G3B",
+          "issuer": "AAA Certificate Services",
+          "fingerprint_and_issuer_signature_valid": true
+        },
+        {
+          "name": "EM DV TLS CA - G3C",
+          "issuer": "emSign Root TLS CA - G3",
+          "fingerprint_and_issuer_signature_valid": true
+        },
+        {
+          "name": "EM DV TLS CA - G3C",
+          "issuer": "AAA Certificate Services",
+          "fingerprint_and_issuer_signature_valid": true
+        },
+        {
+          "name": "EM OV TLS CA - G3C",
+          "issuer": "emSign Root TLS CA - G3",
+          "fingerprint_and_issuer_signature_valid": true
+        },
+        {
+          "name": "EM OV TLS CA - G3C",
+          "issuer": "AAA Certificate Services",
+          "fingerprint_and_issuer_signature_valid": true
+        },
+        {
+          "name": "EM EV TLS CA - G3C",
+          "issuer": "emSign Root TLS CA - G3",
+          "fingerprint_and_issuer_signature_valid": true
+        },
+        {
+          "name": "EM EV TLS CA - G3C",
+          "issuer": "AAA Certificate Services",
+          "fingerprint_and_issuer_signature_valid": true
+        },
+        {
+          "name": "EM OV CS CA - G3B",
+          "issuer": "emSign Root CS CA - G3",
+          "fingerprint_and_issuer_signature_valid": true
+        },
+        {
+          "name": "EM OV CS CA - G3B",
+          "issuer": "AAA Certificate Services",
+          "fingerprint_and_issuer_signature_valid": true
+        },
+        {
+          "name": "EM OV CS CA - G3C",
+          "issuer": "emSign Root CS CA - G3",
+          "fingerprint_and_issuer_signature_valid": true
+        },
+        {
+          "name": "EM OV CS CA - G3C",
+          "issuer": "AAA Certificate Services",
+          "fingerprint_and_issuer_signature_valid": true
+        }
+      ],
+      "aaa_crl": {
+        "issuer": "CN=AAA Certificate Services,O=Comodo CA Limited,L=Salford,ST=Greater Manchester,C=GB",
+        "this_update_utc": "2026-10-23T17:39:56+00:00",
+        "next_update_utc": "2026-10-30T17:39:56+00:00",
+        "signature_valid": true,
+        "current": true,
+        "entries": [
+          {
+            "name": "EM DV TLS CA - G3B",
+            "present": true,
+            "date": "2025-05-14T00:00:00+00:00",
+            "reason": "ca_compromise"
+          },
+          {
+            "name": "EM OV TLS CA - G3B",
+            "present": true,
+            "date": "2025-05-14T00:00:00+00:00",
+            "reason": "ca_compromise"
+          },
+          {
+            "name": "EM EV TLS CA - G3B",
+            "present": true,
+            "date": "2025-05-14T00:00:00+00:00",
+            "reason": "ca_compromise"
+          },
+          {
+            "name": "EM DV TLS CA - G3C",
+            "present": true,
+            "date": "2025-05-14T00:00:00+00:00",
+            "reason": "ca_compromise"
+          },
+          {
+            "name": "EM OV TLS CA - G3C",
+            "present": true,
+            "date": "2025-05-14T00:00:00+00:00",
+            "reason": "ca_compromise"
+          },
+          {
+            "name": "EM EV TLS CA - G3C",
+            "present": true,
+            "date": "2025-05-14T00:00:00+00:00",
+            "reason": "ca_compromise"
+          },
+          {
+            "name": "EM OV CS CA - G3B",
+            "present": true,
+            "date": "2025-05-14T00:00:00+00:00",
+            "reason": "ca_compromise"
+          },
+          {
+            "name": "EM OV CS CA - G3C",
+            "present": true,
+            "date": "2025-05-14T00:00:00+00:00",
+            "reason": "ca_compromise"
+          }
+        ]
+      },
+      "demo-cert": {
+        "not_before": "2026-10-23T10:06:54+00:00",
+        "not_after": "2027-10-23T11:06:54+00:00",
+        "sans": [
+          "login.v.lab.yes-its-a-problem.iamwonderingif.com",
+          "pay.v.lab.yes-its-a-problem.iamwonderingif.com",
+          "pkg.v.lab.yes-its-a-problem.iamwonderingif.com"
+        ],
+        "extension_oids": [
+          "2.5.29.19",
+          "2.5.29.15",
+          "2.5.29.37",
+          "2.5.29.17",
+          "2.5.29.35"
+        ]
+      },
+      "demo-cert-emsign": {
+        "not_before": "2026-10-23T10:00:16+00:00",
+        "not_after": "2027-10-23T11:00:16+00:00",
+        "sans": [
+          "login.v.lab.yes-its-a-problem.iamwonderingif.com",
+          "pay.v.lab.yes-its-a-problem.iamwonderingif.com",
+          "pkg.v.lab.yes-its-a-problem.iamwonderingif.com"
+        ],
+        "extension_oids": [
+          "2.5.29.19",
+          "2.5.29.15",
+          "2.5.29.37",
+          "2.5.29.17",
+          "2.5.29.35"
+        ]
+      }
+    },
+    "current_crls": [
+      {
+        "file": "emsign-tls.crl",
+        "sha256": "3fca75a8b774172c92af79c9023e782c1eade468c44965de06e9ebdea91c6a2b",
+        "signature_valid": true,
+        "this_update": "2026-10-18T09:38:46+00:00",
+        "next_update": "2027-04-16T09:38:46+00:00",
+        "current": true,
+        "entries": [
+          {
+            "name": "EM DV TLS CA - G3B",
+            "serial_hex": "A4AEE678F23362B4C0E460B772F214",
+            "revoked": true,
+            "reason": "ca_compromise",
+            "current_crl_revocation_date": "2026-10-18T09:24:32+00:00",
+            "bundled_metadata_revocation_date": "2026-10-18T09:24:32Z"
+          },
+          {
+            "name": "EM OV TLS CA - G3B",
+            "serial_hex": "6CADA367FB1C100088120EA202D568",
+            "revoked": true,
+            "reason": "ca_compromise",
+            "current_crl_revocation_date": "2026-10-18T09:37:19+00:00",
+            "bundled_metadata_revocation_date": "2026-10-18T09:37:19Z"
+          },
+          {
+            "name": "EM EV TLS CA - G3B",
+            "serial_hex": "C7C41EFE92D825F05EAE841A4A82C1",
+            "revoked": true,
+            "reason": "ca_compromise",
+            "current_crl_revocation_date": "2026-10-18T09:28:53+00:00",
+            "bundled_metadata_revocation_date": "2026-10-18T09:28:53Z"
+          },
+          {
+            "name": "EM DV TLS CA - G3C",
+            "serial_hex": "588B2E3C2BB8CDA13E1A1209254321",
+            "revoked": true,
+            "reason": "ca_compromise",
+            "current_crl_revocation_date": "2026-10-18T09:27:07+00:00",
+            "bundled_metadata_revocation_date": "2026-10-18T09:27:07Z"
+          },
+          {
+            "name": "EM OV TLS CA - G3C",
+            "serial_hex": "296926C227A3A1526392B19482A504",
+            "revoked": true,
+            "reason": "ca_compromise",
+            "current_crl_revocation_date": "2026-10-18T09:38:46+00:00",
+            "bundled_metadata_revocation_date": "2026-10-18T09:38:46Z"
+          },
+          {
+            "name": "EM EV TLS CA - G3C",
+            "serial_hex": "8009928A64107601AF05FA2F19F109",
+            "revoked": true,
+            "reason": "ca_compromise",
+            "current_crl_revocation_date": "2026-10-18T09:30:49+00:00",
+            "bundled_metadata_revocation_date": "2026-10-18T09:30:49Z"
+          }
+        ]
+      },
+      {
+        "file": "emsign-cs.crl",
+        "sha256": "bf52fc8b7b84f07f675d89b458eff5c9230e5d05b6357fc3b1b09c5cbc302175",
+        "signature_valid": true,
+        "this_update": "2026-10-18T09:35:24+00:00",
+        "next_update": "2027-04-16T09:35:24+00:00",
+        "current": true,
+        "entries": [
+          {
+            "name": "EM OV CS CA - G3B",
+            "serial_hex": "7818933F8F85B4619A2B35FBA83D0A",
+            "revoked": true,
+            "reason": "ca_compromise",
+            "current_crl_revocation_date": "2026-10-18T09:33:37+00:00",
+            "bundled_metadata_revocation_date": "2026-10-18T09:33:37Z"
+          },
+          {
+            "name": "EM OV CS CA - G3C",
+            "serial_hex": "544B7F922C31AE220A4A922916F6E6",
+            "revoked": true,
+            "reason": "ca_compromise",
+            "current_crl_revocation_date": "2026-10-18T09:35:24+00:00",
+            "bundled_metadata_revocation_date": "2026-10-18T09:35:24Z"
+          }
+        ]
+      },
+      {
+        "file": "aaa.crl",
+        "sha256": "be9a0c0064db1133e67eb809b9efdd5d0c91844283a0e44280a0091f3679ad08",
+        "signature_valid": true,
+        "this_update": "2026-10-23T17:39:56+00:00",
+        "next_update": "2026-10-30T17:39:56+00:00",
+        "current": true,
+        "entries": [
+          {
+            "name": "EM DV TLS CA - G3B",
+            "serial_hex": "A024FDF4BA665C785CE4A020483858B7",
+            "revoked": true,
+            "reason": "ca_compromise",
+            "current_crl_revocation_date": "2025-05-14T00:00:00+00:00",
+            "bundled_metadata_revocation_date": "2026-10-19T10:35:36Z"
+          },
+          {
+            "name": "EM OV TLS CA - G3B",
+            "serial_hex": "E94223BDE92F914E5AB9ACABFDAC3710",
+            "revoked": true,
+            "reason": "ca_compromise",
+            "current_crl_revocation_date": "2025-05-14T00:00:00+00:00",
+            "bundled_metadata_revocation_date": "2026-10-19T10:35:36Z"
+          },
+          {
+            "name": "EM EV TLS CA - G3B",
+            "serial_hex": "D8F8685E4F2BD9D82402A85A1C1EB731",
+            "revoked": true,
+            "reason": "ca_compromise",
+            "current_crl_revocation_date": "2025-05-14T00:00:00+00:00",
+            "bundled_metadata_revocation_date": "2026-10-19T10:35:36Z"
+          },
+          {
+            "name": "EM DV TLS CA - G3C",
+            "serial_hex": "91F347F1A5B7D39962B95E0EE4E299D1",
+            "revoked": true,
+            "reason": "ca_compromise",
+            "current_crl_revocation_date": "2025-05-14T00:00:00+00:00",
+            "bundled_metadata_revocation_date": "2026-10-19T10:35:36Z"
+          },
+          {
+            "name": "EM OV TLS CA - G3C",
+            "serial_hex": "8D5A4811939EF447D77111CDD9849AE9",
+            "revoked": true,
+            "reason": "ca_compromise",
+            "current_crl_revocation_date": "2025-05-14T00:00:00+00:00",
+            "bundled_metadata_revocation_date": "2026-10-19T10:35:36Z"
+          },
+          {
+            "name": "EM EV TLS CA - G3C",
+            "serial_hex": "05F078752DECE7A1BB8595D303167171",
+            "revoked": true,
+            "reason": "ca_compromise",
+            "current_crl_revocation_date": "2025-05-14T00:00:00+00:00",
+            "bundled_metadata_revocation_date": "2026-10-19T10:35:36Z"
+          },
+          {
+            "name": "EM OV CS CA - G3B",
+            "serial_hex": "41E32B73AC185D6CE0D7480BACF84E69",
+            "revoked": true,
+            "reason": "ca_compromise",
+            "current_crl_revocation_date": "2025-05-14T00:00:00+00:00",
+            "bundled_metadata_revocation_date": "2026-10-19T10:35:36Z"
+          },
+          {
+            "name": "EM OV CS CA - G3C",
+            "serial_hex": "D6A5EF613B390F32EF9CDF349F772841",
+            "revoked": true,
+            "reason": "ca_compromise",
+            "current_crl_revocation_date": "2025-05-14T00:00:00+00:00",
+            "bundled_metadata_revocation_date": "2026-10-19T10:35:36Z"
+          }
+        ]
+      }
+    ],
+    "local_tls": {
+      "python": "3.15.0 (main, Oct  9 2026, 11:16:41) [Clang 17.0.0 (clang-1700.6.4.2)]",
+      "ssl": "OpenSSL 4.0.3 29 Sep 2026",
+      "dns_bypassed_for_isolated_tls_test": true,
+      "default_python_store": {
+        "accepted": false,
+        "verify_code": 20,
+        "verify_message": "unable to get local issuer certificate"
+      },
+      "explicit_aaa_root_without_forged_flag": {
+        "accepted": true,
+        "body": {
+          "path": "fake",
+          "tls": "valid",
+          "host": "login.v.lab.yes-its-a-problem.iamwonderingif.com",
+          "ts": 1792788347.935487
+        }
+      },
+      "explicit_aaa_root_with_forged_flag": {
+        "accepted": true,
+        "body": {
+          "path": "fake",
+          "tls": "forged",
+          "host": "login.v.lab.yes-its-a-problem.iamwonderingif.com",
+          "ts": 1792788347.937799
+        }
+      },
+      "random_probe_hostname_using_generated_leaf": {
+        "accepted": false,
+        "verify_code": 62,
+        "verify_message": "Hostname mismatch, certificate is not valid for 'raudit.v.lab.yes-its-a-problem.iamwonderingif.com'."
+      },
+      "openssl_intermediate_with_current_crl": {
+        "returncode": 2,
+        "output": "C=NL, O=eMudhra BV, CN=EM DV TLS CA - G3B\nerror 23 at 0 depth lookup: certificate revoked\nerror <repository>/secrets/demo-cert/intermediate.pem: verification failed\n"
+      },
+      "openssl_explicit_root_no_revocation": {
+        "returncode": 0,
+        "output": "<repository>/secrets/demo-cert/leaf.crt.pem: OK\n"
+      },
+      "kirimochi_default": {
+        "returncode": 2,
+        "output": "Kirimochi 0.1.0-beta.2 (PoC demo package manager, beta)\nStatus: deployment and verification are in progress; this is not a completed proof.\nPoC: Kirimochi and this registry are fictional. No package is installed.\nPoC site: https://yes-its-a-problem.iamwonderingif.com/\nRegistry: https://pkg.v.lab.yes-its-a-problem.iamwonderingif.com:19445\nPackage : demo-lib\n----------------------------------------------------------------\n\nSAFE: TLS certificate verification failed; the connection was blocked and no package was installed.\nThis runtime rejected the forged certificate chain.\nDetail: CERTIFICATE_VERIFY_FAILED\nNo files were installed.\n"
+      },
+      "kirimochi_explicit_aaa": {
+        "returncode": 0,
+        "output": "Kirimochi 0.1.0-beta.2 (PoC demo package manager, beta)\nStatus: deployment and verification are in progress; this is not a completed proof.\nPoC: Kirimochi and this registry are fictional. No package is installed.\nPoC site: https://yes-its-a-problem.iamwonderingif.com/\nRegistry: https://pkg.v.lab.yes-its-a-problem.iamwonderingif.com:19445\nPackage : demo-lib\n----------------------------------------------------------------\n[1/4] GET /manifest.json      -> 200 (188 bytes)\n      Package: demo-lib@0.0.1\n[2/4] GET /public_key.pem     -> 200 (178 bytes)\n[3/4] GET /package.tar.gz     -> 200 (0 bytes)\n[4/4] Verify SHA-256          -> PASS\n      Expected: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\n      Actual  : e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\n      Signature: PASS (registry-provided key; unpinned)\n\nKIRIMOCHI PoC\n  Scenario: the network path is forged and DNS may be poisoned.\n  Uh-oh! Your environment cannot detect forged application signatures!\n  (PoC: this client does not check DNS itself; the text states the scenario.)\n\n  The registry supplied both the package and the public key,\n  so signature verification passed despite the untrusted source.\n\nDANGER: signature verification passed, but the registry-provided key is unpinned and the source is untrusted; no package was installed.\n"
+      }
+    },
+    "electron": {
+      "dnsBypassedForIsolatedTlsTest": true,
+      "certificateVerificationOverrides": false,
+      "builds": [
+        {
+          "flavor": "legacy",
+          "result": {
+            "result": {
+              "type": "object",
+              "value": {
+                "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) karategata-banking-demo/0.1.0-beta.2 Chrome/136.0.7103.177 Electron/36.9.5 Safari/537.36",
+                "config": {
+                  "apiUrl": "https://pay.v.lab.yes-its-a-problem.iamwonderingif.com:19446",
+                  "expected": {
+                    "merchant": "Karategata Demo Shop",
+                    "account": "KBC-0001",
+                    "amount": 1000
+                  }
+                },
+                "quote": {
+                  "ok": true,
+                  "status": 200,
+                  "data": {
+                    "network": "fake",
+                    "merchant": "Karategata Demo Shop",
+                    "account": "ATTACKER-9999",
+                    "amount": 999999,
+                    "currency": "JPY",
+                    "ts": 1792788358.5871181
+                  },
+                  "jsonValid": true,
+                  "url": "https://pay.v.lab.yes-its-a-problem.iamwonderingif.com:19446/api/quote"
+                },
+                "payment": {
+                  "ok": true,
+                  "status": 200,
+                  "data": {
+                    "status": "paid",
+                    "network": "fake",
+                    "merchant": "Karategata Demo Shop",
+                    "account": "ATTACKER-9999",
+                    "amount": 999999,
+                    "currency": "JPY",
+                    "receipt": "DEMO-FORGED-RECEIPT"
+                  },
+                  "jsonValid": true,
+                  "url": "https://pay.v.lab.yes-its-a-problem.iamwonderingif.com:19446/api/pay"
+                }
+              }
+            }
+          }
+        },
+        {
+          "flavor": "hardened",
+          "result": {
+            "result": {
+              "type": "object",
+              "value": {
+                "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) karategata-banking-demo/0.1.0-beta.2 Chrome/156.0.8078.48 Electron/45.0.0 Safari/537.36",
+                "config": {
+                  "apiUrl": "https://pay.v.lab.yes-its-a-problem.iamwonderingif.com:19446",
+                  "expected": {
+                    "merchant": "Karategata Demo Shop",
+                    "account": "KBC-0001",
+                    "amount": 1000
+                  }
+                },
+                "quote": {
+                  "ok": false,
+                  "error": "net::ERR_CERT_AUTHORITY_INVALID"
+                },
+                "payment": {
+                  "ok": false,
+                  "error": "net::ERR_CERT_AUTHORITY_INVALID"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "sources": [
+    {
+      "url": "https://bugzilla.mozilla.org/show_bug.cgi?id=2083449",
+      "supports": "Public incident, publicly documented small-key recovery, eMudhra and Sectigo revocations."
+    },
+    {
+      "url": "https://emudhra.we-have-a-problem.com/",
+      "supports": "Public evidence bundle and impacted certificate metadata; local bytes independently matched."
+    },
+    {
+      "url": "https://github.com/electron/electron/security/advisories/GHSA-jr5w-w6x2-84p9",
+      "supports": "Published Electron mitigation and patched versions including 45.0.0-beta.6."
+    },
+    {
+      "url": "https://www.rfc-editor.org/rfc/rfc9471.html",
+      "supports": "Referral address data and sibling glue are part of documented DNS behavior; this is not a specification banning all additional address use."
+    },
+    {
+      "url": "https://www.rfc-editor.org/rfc/rfc2181.html#section-5.4.1",
+      "supports": "Ranking of authoritative and additional DNS data."
+    },
+    {
+      "url": "https://kb.isc.org/docs/strict-glue",
+      "supports": "Published changes to BIND glue policy; not independent validation of this lab."
+    },
+    {
+      "url": "https://www.usenix.org/conference/usenixsecurity24/presentation/zhang-yunyi-rethinking",
+      "supports": "Published stale-glue threat research; not the same attacker model as this authority-controlled lab."
+    },
+    {
+      "url": "https://community.cloudflare.com/t/1-1-1-1-answers-wrong-a-record-when-authority-name-server-has-unrelated-addtional/966458",
+      "status": "not independently retrieved; HTTP 403, not used as confirming evidence"
+    },
+    {
+      "url": "https://crl.emsign.com/?roottlscag3.crl",
+      "snapshot": "artifacts/review-2026-10-24-crls/emsign-tls.crl"
+    },
+    {
+      "url": "https://crl.emsign.com/?rootcscag3.crl",
+      "snapshot": "artifacts/review-2026-10-24-crls/emsign-cs.crl"
+    },
+    {
+      "url": "http://crl.comodoca.com/AAACertificateServices.crl",
+      "snapshot": "artifacts/review-2026-10-24-crls/aaa.crl"
+    }
+  ],
+  "follow_up_2026_10_24": {
+    "scope": "Follow-up after the initial audit; changes remain uncommitted and no external deployment was made.",
+    "implemented": [
+      "TLS probe now classifies the chain actually served by checking known compromised intermediate SPKI hashes; unknown chains are reported as other, not valid.",
+      "SNI defaults now select forged chains for login, pay, and pkg; random probe names retain the ordinary wildcard chain.",
+      "DNS authority now handles both UDP and TCP, refuses out-of-zone queries, clears AD, and closes both listeners on shutdown.",
+      "Browser labels and documentation distinguish server reachability from DNS-query observation, state that DNS and TLS are separate connections, and avoid calling a different certificate safe.",
+      "Public-facing docs now state that the intermediate keys are revoked, summarize current platform blocking, and disclose that repository code can reconstruct the compromised CA key from public certificates."
+    ],
+    "remaining_findings": {
+      "R1": "Intentionally remains a simulator; no live recursive resolver was tested. The public page and docs now say so.",
+      "R5": "Kirimochi remains a fictional package manager using a registry-supplied key; docs already state this limitation.",
+      "R6": "CRL revocation state was confirmed in the original review; the CRL entry date and incident/report dates must not be conflated."
+    },
+    "current_incident_status": {
+      "source": "https://emudhra.we-have-a-problem.com/",
+      "reported_on": "2026-10-20",
+      "platform_blocks_reported": "Firefox and Chrome from 2026-10-17; Microsoft platforms from 2026-10-20; Apple products from 2026-10-22.",
+      "caveat": "The source says clients that do not consume revocation information or Certificate Transparency may remain affected until updated; page checks apply only to the browser used."
+    },
+    "publication_and_deployment": {
+      "publication_assessment": "Suitable only as a clearly labeled controlled educational lab; it is not proof of a live recursive resolver vulnerability or that both stages succeed on one connection. The repository contains key-recovery code, so do not publish or deploy recovered CA private keys.",
+      "deployment": "Not performed. The user has not provisioned the VPS or supplied three public IPv4 addresses and an SSH alias.",
+      "cloudflare": "Read only. The grey account zone iamwonderingif.com showed seven existing MX/TXT records and no lab delegation or nameserver A record."
+    },
+    "addressed_findings": {
+      "R2": "Addressed: lab_http.py derives tls classification from the leaf signed by a known compromised intermediate; unknown chains are other, and the compatibility flag is checked against the actual chain.",
+      "R3": "Addressed in the deployment plan: random probe names use the normal wildcard certificate, and forged SNI selection is limited to login, pay, and pkg.",
+      "R4": "Addressed in the docs: DNS and TLS results are separate connections, and the local DNS fixture is not presented as proof of a combined event."
+    },
+    "historical_validation": {
+      "status": "historical_only",
+      "commands": [
+        "python3 poc/lab/test_lab.py: 4 tests passed; loopback only.",
+        "bash poc/lab/dns/test_local.sh: passed; documentation-range addresses and loopback only.",
+        "python3 -m py_compile poc/lab/dns/lab_dns.py poc/lab/http/lab_http.py poc/lab/certs/make_leaf.py poc/lab/test_lab.py: passed.",
+        "node --check docs/app.js; node --check docs/i18n.js; git diff --check: passed."
+      ],
+      "note_ja": "この4テストは初回検証時点の歴史的結果です。その後 test_lab.py は別の8テスト版となり未実行の期間がありました。さらに危殆化CAを使わない合成CAのみの9テストへ置き換え、2026-10-24の最終確認で9件すべて合格しました。"
+    },
+    "current_validation": {
+      "status": "partial; local suites pass, public deployment remains blocked",
+      "last_checked_jst": "2026-10-24",
+      "passed_in_root_session": [
+        "python3 -B poc/lab/test_lab.py: 9 synthetic/loopback tests passed; no compromised CA recovery or signing.",
+        "bash poc/lab/dns/test_local.sh: passed on loopback using reserved documentation addresses; this checks the in-zone fixture only.",
+        "python3 -B demo/fake-pkg/test_kirimochi.py: signed fixture, loopback HTTPS and zipapp checks passed; synthetic CA only.",
+        "node docs/test.js: 18 result combinations and response/state failure checks passed; no network.",
+        "node demo/electron-payment/test.js: passed with stubbed IPC/network; no TLS connection.",
+        "python3 -B -m unittest discover -s poc/deploy -p 'test_*.py' -v: 18 synthetic deployment/material checks passed.",
+        "python3 poc/deploy/deploy.py preflight: exit 1 as intended, BLOCKED because DNS lacks --child-ns; offline only.",
+        "git diff --check: passed.",
+        "python3 -B poc/lab/certs/check_material.py: 16 public certificate entries, 8 local key matches, 2 demo chains. This is a material consistency check, not a forged-CA runtime test."
+      ],
+      "passed_in_agent_reports": [
+        "macOS arm64 beta.3 Electron legacy and hardened builds launched; ad-hoc code signatures, ZIP and DMG integrity passed. Detailed output: demo/electron-payment/dist/predeploy-beta3-check.json.",
+        "GitHub release YAML/flavor/tag rules, beta.3 packaging and Pages asset references were checked locally; GitHub Actions and other OS builds were not run.",
+        "Web agent reports its 18 bilingual UI/contract cases and syntax checks passed.",
+        "Kirimochi final zipapp local verification reported by the package and release agents."
+      ],
+      "prior_unprivileged_loopback_attempt": "The workspace sandbox initially denied localhost socket binding for TLS/Kirimochi tests. The same repository-local tests later passed with loopback-only socket permission; no public host was contacted.",
+      "tls_regression_suite": {
+        "file": "poc/lab/test_lab.py",
+        "test_count": 9,
+        "status": "passed_in_root_session",
+        "scope": "Fresh synthetic root/issuers/leaves, synthetic test metadata, loopback HTTP/DNS only; no affected CA key recovery or signing."
+      },
+      "public_deployment": "not tested; deployment preflight remains blocked by the missing external child-NS DNS contract."
+    },
+    "live_dns_observation": {
+      "initial_snapshot": {
+        "evidence_files": [
+          "artifacts/dns-public-check-2026-10-24.json",
+          "artifacts/dns-public-http-check-2026-10-24.json"
+        ],
+        "observation": "At 06:24 JST, 1.1.1.1 returned 85.131.199.2 and 8.8.8.8 returned 162.43.9.153 for blog.alice.poc.debiru.net. Separate HTTPS GETs to both IPs with preserved Host/SNI returned HTTP 200 and passed certificate verification; the first page JavaScript was not executed."
+      },
+      "follow_up_trace": {
+        "observed_at_jst": "2026-10-24T06:34:00+09:00",
+        "artifact": "artifacts/dns-authority-trace-2026-10-24.json",
+        "assessment": "For blog.alice.poc.debiru.net A, an independently reached ns-33.awsdns-04.com authority returned 162.43.9.153, while the referral-supplied endpoint 157.112.149.243 returned 85.131.199.2. These results are not A records for the NS hostname. The external-NS referral is not sibling glue, and does not prove generic cache poisoning or tenant takeover."
+      }
+    }
+  },
+  "working_tree_review": {
+    "base_commit": "91a4d06384fca8957c73ea9b36ea301fbc45e94a",
+    "state": "Reviewed working tree includes uncommitted changes; base commit is the pre-change revision.",
+    "public_dns_follow_up_artifact": "artifacts/dns-authority-trace-2026-10-24.json"
+  }
+}

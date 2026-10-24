@@ -4,6 +4,8 @@ Public evidence for the eMudhra intermediate-CA key-compromise finding:
 
 * `proof/`: public intermediates, public keys, signatures, and the signed proof message.
 * `impacted-intermediates.json`, `roots.json`: metadata.
+* `dns-public-check-2026-10-24.json`, `dns-public-http-check-2026-10-24.json`, `dns-authority-trace-2026-10-24.json`, `dns-external-reports-2026-10-24.json`: 2026-10-24 public resolver and HTTPS observations with scope and provenance. They record third-party behavior and are separate from this repository's local DNS comparison.
+* `review-2026-10-24.json`, `review-2026-10-24-crls/`: the recorded local review of commit 91a4d06 and the issuer CRLs it used.
 
 Local-only working files, excluded from git:
 

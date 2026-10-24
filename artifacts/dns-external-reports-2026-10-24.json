@@ -1,0 +1,144 @@
+{
+  "recorded_at_jst": "2026-10-24T23:12:00+09:00",
+  "schema_note": "External-evidence record for the DNS stage; companion to dns-public-check / dns-public-http-check / dns-authority-trace (2026-10-24).",
+  "purpose": "Verify the author-published DNS PoC and its Japanese public reports, as directed by the repository owner, and record them as substitute external evidence for the externally-delegated child-NS mechanism that the local lab does not implement (lab_dns.py lacks --child-ns).",
+  "owner_direction": "At about 23:07 JST on 2026-10-24 the repository owner directed that the Japanese tweet reports of the same DNS behavior be verified and used as substitute verification for the equivalent-implementation part of this PoC.",
+  "constraint_compliance": "The previously blocked external child-NS lab implementation was not retried or routed around. No zone was changed, no cache was flushed, no scanning was performed, no page JavaScript was executed, and no third-party host was modified. All checks were bounded passive DNS/HTTPS lookups against the author-published PoC and public resolver JSON APIs.",
+  "tooling_note": "The harness web_fetch and web_search endpoints returned HTTP 402 (insufficient balance) for every call; curl from the sandbox was used instead. The Quad9 probe used dns.quad9.net:5053, which is an alternate DoT port rather than the DoH JSON endpoint (https://dns.quad9.net/dns-query); the timeout reflects a malformed probe from this environment, not Quad9 unavailability.",
+  "sources": {
+    "x_thread": {
+      "conversation_id": "2107478993779999152",
+      "author": "@debiru_R",
+      "root_url": "https://x.com/debiru_R/status/2107478993779999152",
+      "retrievability": "X renders via JavaScript; the page could not be extracted from this environment (HTTP 200 JS shell). The summary below was provided by the repository owner in the session message and is recorded as owner-provided, not independently extracted.",
+      "owner_provided_summary": [
+        "ルート投稿(10月6日、@debiru_R): Cloudflare Public DNS 1.1.1.1 に脆弱性があることを示す PoC。https://blog.alice.poc.debiru.net/ 。1.1.1.1 を使っている人は FAKE サーバーに辿り着くはず。",
+        "自己解説: 『ある条件下でのサブドメインハイジャック脆弱性』。例として、XServer レンサバ DNS で example.com を運用し sub.example.com を外部権威サーバーに委任している場合、1.1.1.1 経由で偽サイトへ誘導される。攻撃者は『外部権威サーバーのドメイン名のAレコード』を作成することで委任チェーンを乗っ取れる、と説明。",
+        "成立条件: (1) 第三者が外部権威サーバーのドメイン名のAレコードを設定できる(XServerレンサバが該当)、(2) その権威サーバーが Unrelated Additional を出力する、(3) Unrelated Additional を受け入れるリゾルバ(1.1.1.1 など)経由でアクセスされる。",
+        "TTL や DNS の浸透は無関係。キャッシュして再利用まではしないが、当該サブドメインの問い合わせ時に偽誘導される問題である。",
+        "XServer が対応し条件(1-2)が満たされなくなったため、独自権威サーバーで PoC を復活させた。",
+        "関連議論: @beyondDNS 氏が Sibling Domain Glue を受け入れるリゾルバーの多さや、Sibling でも攻撃可能な場合がある旨を指摘。@tss_ontap_o 氏が XServer での sibling domain のゾーン同居について質問。@debiru_R 氏はレンサバDNS/VPS DNS では eTLD+1 のゾーンしか作れず、サブドメインのゾーン作成や親子同居は不可のため攻撃の余地はないと考えていた、と回答(gist へのリンク付き)。",
+        "スレッド内のその他: Firefox 経由でニセサイトに行く旨の指摘、Cloudflare 公式コミュニティでの対応の共有、『公開の場で Cloudflare の見解が示されたことで本件について議論がしやすくなった』旨の発言。"
+      ]
+    },
+    "author_gist": {
+      "url": "https://gist.github.com/debiru/04e612e9b073774cf0a038c3f349d98d",
+      "fetched_raw_bytes": 23695,
+      "fetched_at_jst": "2026-10-24T23:09:00+09:00",
+      "key_content": [
+        "XServer Static の権威サーバー(ns1.static.ne.jp)は、登録ドメイン名ではないサブドメインでも設定でき、外部の権威サーバーを使っていようが ns1.static.ne.jp にゾーンが作られる(gist 内の記述)。",
+        "ただしこの権威サーバーの DNS レコードは自由に編集できないため、子孫ゾーンを乗っ取る攻撃は結果として成立しない、という当時の作者分析が付されている。",
+        "XServer レンタルサーバーでの独自ドメイン利用時の所有権確認プロセスに関する分析も含まれ、作者は第三者作成ゾーンと長 TTL のキャッシュ毒が成立し得るかどうかを注意深く検討している(推測である旨が明示された記述)。"
+      ]
+    },
+    "cloudflare_community": {
+      "url": "https://community.cloudflare.com/t/1-1-1-1-answers-wrong-a-record-when-authority-name-server-has-unrelated-addtional/966458",
+      "status": "HTTP 403 anti-bot interstitial; not independently retrieved; consistent with the earlier 403 recorded in review-2026-10-24.json."
+    }
+  },
+  "fresh_observations": [
+    {
+      "at_jst": "2026-10-24T23:09:20+09:00",
+      "via": "curl https://dns.google/resolve (Google Public DNS, 8.8.8.8 view)",
+      "query": "blog.alice.poc.debiru.net A",
+      "result": "162.43.9.153 TTL 60",
+      "comment": "Google DoH JSON API comment field: Response from 205.251.192.33. This annotation is the API's own attribution, not an independent authority verification; the independent evidence is the 06:34 JST authority trace plus the ns-33.awsdns-04.com A lookups in this record."
+    },
+    {
+      "at_jst": "2026-10-24T23:09:20+09:00",
+      "via": "curl https://cloudflare-dns.com/dns-query (Cloudflare, 1.1.1.1 view, accept: application/dns-json)",
+      "query": "blog.alice.poc.debiru.net A",
+      "result": "85.131.199.2 TTL 3600"
+    },
+    {
+      "at_jst": "2026-10-24T23:09:20+09:00",
+      "via": "curl https://1.1.1.1/dns-query (1.1.1.1 view)",
+      "query": "blog.alice.poc.debiru.net A",
+      "result": "85.131.199.2 TTL 3600"
+    },
+    {
+      "at_jst": "2026-10-24T23:09:20+09:00",
+      "via": "curl https://dns.google/resolve",
+      "query": "alice.poc.debiru.net NS",
+      "result": "ns.lavoscore.org TTL 60",
+      "comment": "Google DoH JSON API comment field: Response from 162.43.9.153 (API attribution, not an independent verification)."
+    },
+    {
+      "at_jst": "2026-10-24T23:11:36+09:00",
+      "via": "Google DoH and Cloudflare DoH",
+      "query": "ns-33.awsdns-04.com A",
+      "result": "205.251.192.33 from both resolvers (TTL 21600 / 172800)",
+      "note": "The referral's Additional-supplied address is not the independently resolved address."
+    },
+    {
+      "at_jst": "2026-10-24T23:11:36+09:00",
+      "via": "Google DoH and Cloudflare DoH",
+      "query": "ns1.static.ne.jp A",
+      "result": "157.112.149.243 from both resolvers"
+    },
+    {
+      "at_jst": "2026-10-24T23:11:36+09:00",
+      "via": "Google DoH PTR",
+      "query": "243.149.112.157.in-addr.arpa PTR",
+      "result": "ns1.static.ne.jp"
+    },
+    {
+      "at_jst": "2026-10-24T23:11:36+09:00",
+      "via": "Cloudflare DoH",
+      "query": "blog.bob.poc.debiru.net A (reference name)",
+      "result": "162.43.9.153 TTL 60",
+      "note": "No divergence between resolvers for this reference name."
+    },
+    {
+      "at_jst": "2026-10-24T23:09:58+09:00",
+      "method": "curl -I https://blog.alice.poc.debiru.net/ (HEAD only; body not fetched; JavaScript not executed)",
+      "result": "HTTP/2 200, server nginx, content-length 264, etag 108-65d4136d67a8a, last-modified Wed 07 Oct 2026 14:48:54 GMT",
+      "note": "Identical header set to the morning FAKE-server record at 85.131.199.2."
+    },
+    {
+      "environment_note": "This machine's system resolver is Cloudflare Public DNS (1.1.1.1 / 1.0.0.1 per scutil --dns); the HEAD above therefore also reflects the 1.1.1.1 path landing on the FAKE server."
+    },
+    {
+      "at_jst": "2026-10-24T23:09:20+09:00",
+      "note": "The Quad9 probe (dns.quad9.net:5053, an alternate DoT port rather than the DoH JSON endpoint) timed out after 15 seconds; malformed probe, not Quad9 unavailability; no third-resolver view captured."
+    }
+  ],
+  "cross_references": [
+    "artifacts/dns-public-check-2026-10-24.json (06:24 JST dig: 1.1.1.1 -> 85.131.199.2 TTL 3600; 8.8.8.8 -> 162.43.9.153 TTL 60)",
+    "artifacts/dns-public-http-check-2026-10-24.json (both IPs HTTP 200 with normal TLS validation; the FAKE body at 85.131.199.2 states: FAKE Web Server debiru.static.jp for blog.alice.poc.debiru.net via @ns1.static.ne.jp (157.112.149.243))",
+    "artifacts/dns-authority-trace-2026-10-24.json (referral with external NS ns-33.awsdns-04.com and Additional A 157.112.149.243; the independently reached authority answered 162.43.9.153; the Additional-supplied endpoint answered 85.131.199.2; not RFC 9471 sibling glue)"
+  ],
+  "assessment": {
+    "mechanism_confirmed_externally": [
+      "The delegated child NS name ns-33.awsdns-04.com truly resolves to 205.251.192.33 (Route 53), while the referral's Additional record supplies 157.112.149.243, which is ns1.static.ne.jp (XServer Static shared authoritative server; forward and PTR confirmed).",
+      "1.1.1.1 accepts the Additional data and returns the FAKE address 85.131.199.2 (TTL 3600, consistent with the false zone's TTL); 8.8.8.8 resolves the NS name independently and returns the TRUE address 162.43.9.153 (TTL 60); Google's API comment attributes that response to 205.251.192.33, the real ns-33.awsdns-04.com address (independently confirmed by the ns-33 A lookups in this record).",
+      "A false zone for the delegated name exists on ns1.static.ne.jp; the author's gist documents that XServer Static accepts even non-registered subdomain claims, and the FAKE page itself identifies the server as debiru.static.jp via ns1.static.ne.jp.",
+      "The divergence was reproduced at 06:24 JST (dig) and again at 23:09 JST (DoH) for blog.alice.poc.debiru.net, while the reference name blog.bob.poc.debiru.net does not diverge."
+    ],
+    "mapping_to_author_conditions": [
+      "Condition (1), third-party A-record control for the external NS name: in the current PoC form the author demonstrates the shared-authoritative-server side by the false zone created on ns1.static.ne.jp for his own subdomain; the original XServer variant involved a third party. The current PoC does not by itself demonstrate a third-party end-to-end attack.",
+      "Condition (2), authority emits Unrelated Additional: recorded in dns-authority-trace-2026-10-24.json.",
+      "Condition (3), resolver accepts Unrelated Additional: reproduced for 1.1.1.1 (DoH JSON and as this machine's system resolver) versus 8.8.8.8, twice on 2026-10-24."
+    ],
+    "relation_to_repository": [
+      "Per the owner's direction, this record serves as substitute external verification for the externally-delegated child-NS mechanism that the local lab cannot yet reproduce.",
+      "It does NOT implement lab_dns.py --child-ns; the deployment preflight remains BLOCKED (exit 1), and the repository is still not ready for a public demonstration.",
+      "The local DNS lab remains a simulator (review finding R1); this record does not change that classification."
+    ],
+    "limitations": [
+      "The X thread content is owner-provided and could not be independently extracted from this environment; its technical claims were cross-checked against the author's gist, the live PoC behavior, and the repository's own recorded evidence.",
+      "The Cloudflare community thread could not be retrieved (HTTP 403).",
+      "Quad9 DoH timed out; only Google and Cloudflare views were captured.",
+      "The observations show per-query misdirection via referral Additional data; they do not establish persistent cache poisoning, tenant takeover, or a generic resolver vulnerability beyond the observed behavior."
+    ]
+  },
+  "post_audit_corrections": {
+    "corrected_at_jst": "2026-10-24T23:25:00+09:00",
+    "source": "Third independent audit on ollama/glm-5.3 (max reasoning) flagged three labeling issues; none changed the conclusions.",
+    "fixes": [
+      "DoH 'Response from' values relabeled as Google API comment annotations rather than independent authority verification.",
+      "Quad9 probe relabeled: dns.quad9.net:5053 is an alternate DoT port, not the DoH JSON endpoint; the timeout was a malformed probe.",
+      "The TTL 3600 wording softened to 'consistent with the false zone's TTL'."
+    ]
+  }
+}

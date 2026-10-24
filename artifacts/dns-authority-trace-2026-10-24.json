@@ -1,0 +1,51 @@
+{
+  "observed_at_jst": "2026-10-24T06:34:00+09:00",
+  "scope": "Bounded ordinary DNS queries; no cache flush, randomized names, resolver setting changes, scans, or application JavaScript execution.",
+  "provenance": "Reported by the scoped DNS audit subagent. A root-session repeat at 06:43 JST was blocked by the OS refusing dig's socket bind, so this follow-up trace is not independently repeated in the root session.",
+  "queries": [
+    {
+      "server": "8.8.8.8",
+      "qname": "alice.poc.debiru.net",
+      "qtype": "NS",
+      "answer": [
+        "ns.lavoscore.org"
+      ]
+    },
+    {
+      "server": "ns.lavoscore.org (162.43.9.153)",
+      "qname": "blog.alice.poc.debiru.net",
+      "qtype": "A",
+      "aa": false,
+      "authority": [
+        "ns-33.awsdns-04.com"
+      ],
+      "additional": [
+        {
+          "owner": "ns-33.awsdns-04.com",
+          "type": "A",
+          "address": "157.112.149.243"
+        }
+      ]
+    },
+    {
+      "server": "ns-33.awsdns-04.com",
+      "reported_responder": "2600:9000:5300:2100::1",
+      "qname": "blog.alice.poc.debiru.net",
+      "qtype": "A",
+      "aa": true,
+      "answer": [
+        "162.43.9.153"
+      ]
+    },
+    {
+      "server": "157.112.149.243",
+      "qname": "blog.alice.poc.debiru.net",
+      "qtype": "A",
+      "aa": true,
+      "answer": [
+        "85.131.199.2"
+      ]
+    }
+  ],
+  "assessment": "For the same query, blog.alice.poc.debiru.net A, the independently reached ns-33.awsdns-04.com authority returned 162.43.9.153, whereas the referral-supplied endpoint 157.112.149.243 returned 85.131.199.2. These are answers for the blog name, not A records for the NS hostname. The referral uses an external NS name, not RFC 9471 sibling glue. This observation does not establish generic cache poisoning, persistent cache pollution, or tenant takeover."
+}
