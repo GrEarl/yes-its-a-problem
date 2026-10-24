@@ -4,10 +4,10 @@
 
 > **Beta: deployment and verification are in progress.** This is not a completed proof. Do not treat current results as confirmation until the lab, site, and clients have been fully deployed and verified.
 
-A PoC combining DNS delegation responses and TLS certificate verification. Karategata Banking and Kirimochi are fictional; no real transfer or installation is made.
+A pre-publication educational PoC about DNS delegation responses and TLS certificate verification. Karategata Banking and Kirimochi are fictional; no real transfer or installation is made.
 
-1. A recursive resolver uses an ADDITIONAL glue record in a delegation response. Instead of resolving the nameserver name separately, it uses the supplied address.
-2. Some TLS clients accept a forged certificate. The certificate is signed with a recovered eMudhra intermediate CA private key.
+1. The current DNS lab compares records from fixed local authoritative servers. It does not reproduce recursive-resolver behavior or a cross-provider delegation.
+2. The repository contains code that reconstructs compromised eMudhra intermediate CA private keys from public certificates. Those intermediates are revoked. The regular regression tests use freshly generated synthetic CAs and do not recover or sign with the affected keys. The browser page checks only the browser running it; its server-reported TLS classification is not an independent comparison with the browser's peer certificate.
 
 Original research (third party, reporter Wayne): <https://emudhra.we-have-a-problem.com/>
 
@@ -26,9 +26,54 @@ DNS background (glue handling, not an independent validation of this lab):
 - [Rethinking the Security Threats of Stale DNS Glue Records (USENIX Security 2024)](https://www.usenix.org/system/files/usenixsecurity24-zhang-yunyi-rethinking.pdf) ([presentation](https://www.usenix.org/conference/usenixsecurity24/presentation/zhang-yunyi-rethinking))
 - [ISC BIND: Operational Notification: Impact of Stricter Glue Checking](https://kb.isc.org/docs/strict-glue)
 
+Post-MITM escalation (CVE-2026-111497, "Node2Shell" / "HTTP2Shell"), cited under "Escalation" below:
+
+- [Node.js October 2026 security releases: Brotli decoder out-of-bounds write permits remote code execution](https://nodejs.org/en/blog/vulnerability/october-2026-security-releases)
+- [GHSA-9v8h-qqgm-4m35: Brotli out-of-bounds write, also affects the PyPI Brotli package](https://github.com/advisories/GHSA-9v8h-qqgm-4m35)
+- [Imperva: Node2Shell, from Brotli data to remote code execution](https://www.imperva.com/blog/node2shell-from-brotli-data-to-remote-code-execution/)
+- Public PoCs already exist: [dimasma0305/CVE-2026-111497-POC](https://github.com/dimasma0305/CVE-2026-111497-POC) (profile-pinned RCE harness), [gh0st-nemesis/node2shell-poc](https://github.com/gh0st-nemesis/node2shell-poc) (Docker lab), [6mile/node-python2shell](https://github.com/6mile/node-python2shell) (Python impact proof)
+
 ## Use and limits
 
-Run this only against the lab names in this repository or hosts you control. The forged-certificate server is not a public interception service. The eMudhra intermediates used here are revoked; no private keys are included, and `secrets/` must stay local. See [SECURITY.md](SECURITY.md).
+Run this only against the lab names in this repository or hosts you control. The eMudhra intermediates used here are revoked; current browser and platform response is described in the linked incident report. The repository does not include private keys, but it does include code that reconstructs the compromised CA key from its public certificate because the original key generation was flawed. Keep recovered keys and generated files local in ignored `secrets/`; do not place the CA key on a public server. See [SECURITY.md](SECURITY.md).
+
+## Escalation beyond the demonstrated chain (documented, not implemented)
+
+The demonstrated chain already gives an attacker two positions: the client is
+routed to a server the attacker controls, and the client accepts a forged
+certificate for it. From there the attacker reads and rewrites the session.
+The fake lab server mirrors the genuine quote values, so the demo client's own
+data checks pass while every displayed value is attacker-supplied; the same
+position also yields submitted credentials and modified traffic (information
+deception and collection).
+
+The same position escalates to code execution whenever a response body reaches
+a decoder with a memory-safety flaw, and that is live now, not hypothetical.
+CVE-2026-111497 ("Node2Shell" / "HTTP2Shell") is an out-of-bounds write in the
+Brotli decoder bundled with Node.js: an invalid block switch was treated as a
+temporary need for more input instead of a permanent format error, so the
+streaming decoder kept appending bytes to an eight-byte internal buffer. The
+Node.js advisory states the precondition exactly: "An attacker who can supply
+Brotli data that an application decompresses with node:zlib can corrupt
+process memory, which can lead to a crash, disclosure of process memory, or
+remote code execution." Node.js rates the issue High and fixed it in
+22.23.4 / 24.22.1 / 26.12.1; the PyPI Brotli package and brotlicffi bundle the
+same decoder (fixed 1.2.1 / 1.2.1.0; the GitHub advisory rates it Critical);
+and public proof-of-concept repositories already exist, including a
+profile-pinned RCE harness that executes code on a Node v24.22.0 lab over
+the network. Electron bundles Node.js, so applications that decompress
+attacker-influenced data with `node:zlib` inherit the advisory; fetches
+through Electron's `net` module or the renderer go through Chromium's
+network stack and its separately bundled decoder, which the cited advisories
+do not cover.
+
+This repository deliberately stops before that step. It contains no exploit
+code and no malformed-stream generator, and it handles no
+`Content-Encoding` at all: the lab servers never emit one, the Kirimochi
+client uses stdlib `http.client` (which never decodes Brotli), and the
+Electron demo fetches through Chromium's stack. The PoC demonstrates the
+trust failure; the escalation is documented with the citations above instead
+of being weaponized here.
 
 ## Layout
 
@@ -42,32 +87,26 @@ Run this only against the lab names in this repository or hosts you control. The
 
 ## Local checks
 
-Create the leaf certificate first. On the first run, `make_leaf.py` recovers the CA private key from the public CA certificate into `secrets/artifacts/keys`.
+Start with local regression tests that use no external service or compromised CA key:
 
-    python3 poc/lab/certs/make_leaf.py --days 30
-
-    # DNS loopback check
+    python3 -B poc/lab/test_lab.py
     bash poc/lab/dns/test_local.sh
+    python3 -B demo/fake-pkg/test_kirimochi.py
+    node demo/electron-payment/test.js
+    node docs/test.js
+    python3 -B -m unittest discover -s poc/deploy -p 'test_*.py' -v
 
-    # Mock registry
-    python3 demo/fake-pkg/server/mock_registry.py --port 9445 \
-      --cert secrets/demo-cert/fullchain.pem \
-      --key secrets/demo-cert/leaf.key.pem
+To inspect deployment readiness:
 
-    # Package manager. The lab root is not system-trusted; this env var is for
-    # the local test only.
-    SSL_CERT_FILE=secrets/demo-cert/root.pem \
-      python3 demo/fake-pkg/src/kirimochi.py install demo-lib \
-      --url https://pkg.v.lab.yes-its-a-problem.iamwonderingif.com:9445 \
-      --connect 127.0.0.1:9445
+    python3 poc/deploy/deploy.py preflight
 
-Prerequisites: Python 3, `cryptography`, OpenSSL, and `dig`. `dnslib` is vendored in `poc/vendor`.
+The DNS lab supports the required external child-NS option, and the current `preflight` exits 0 with `PENDING` rows for deployment inputs that have not been supplied (public IPv4s, SSH aliases, ACME contact email, certificate inputs). `preflight --require dns` fails closed until those inputs exist. Do not treat this state as public-deployment readiness. Local checks require Python 3, `cryptography`, OpenSSL, and Node.js. `dnslib` is vendored in `poc/vendor`.
 
-Certificates and private keys are written to `secrets/`. They are not part of the repository.
+CA-key recovery and leaf generation are not part of routine testing or deployment. Test roots are generated from synthetic CAs. Keep existing certificates and private keys under ignored `secrets/`; never place a CA private key on a public server.
 
 ## Build
 
-For the current beta, push the tag `v0.1.0-beta.2`. A stable `v0.1.0` tag should be created only after deployment and verification are complete. GitHub Actions builds the Electron legacy and hardened builds on `macos-latest`, `ubuntu-latest`, and `windows-latest` (six jobs: three OSes x two Electron versions), plus one `kirimochi.pyz`. Artifacts are macOS `dmg`/`zip`, Windows `nsis`/`zip`, and Linux `AppImage`; the Python zipapp is cross-platform. The workflow uploads them to a GitHub Release.
+The current source candidate is `0.1.0-beta.3`. The existing `v0.1.0-beta.2` tag points to an older commit and must not be moved or reused. No `v0.1.0-beta.3` tag has been created. Resolve the DNS blocker and complete CI and deployment verification on the latest source before publishing a tag. Consider stable `v0.1.0` only after the public demonstration has been verified. The workflow is configured to build Electron artifacts for macOS, Ubuntu, and Windows plus `kirimochi.pyz`; GitHub Actions and all OS builds remain untested against this source.
 
 ## License
 
