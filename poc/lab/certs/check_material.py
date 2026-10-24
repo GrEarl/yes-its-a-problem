@@ -9,7 +9,6 @@ from pathlib import Path
 
 from cryptography import x509
 from cryptography.hazmat.primitives import hashes, serialization
-from cryptography.hazmat.primitives.asymmetric import ec, padding, rsa
 
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parent.parent.parent
@@ -27,19 +26,29 @@ def public_der(key_or_cert):
                             serialization.PublicFormat.SubjectPublicKeyInfo)
 
 
-def verify_signature(child, issuer):
-    alg = child.signature_hash_algorithm
-    pub = issuer.public_key()
-    if isinstance(pub, rsa.RSAPublicKey):
-        pub.verify(child.signature, child.tbs_certificate_bytes,
-                   padding.PKCS1v15(), alg)
-    else:
-        pub.verify(child.signature, child.tbs_certificate_bytes,
-                   ec.ECDSA(alg))
-
-
 def sha256(cert):
     return cert.fingerprint(hashes.SHA256()).hex().upper()
+
+
+def verify_demo_chain(directory, roots):
+    """Verify the fullchain file supplied to the server, against its lab root."""
+    certs = x509.load_pem_x509_certificates((directory / "fullchain.pem").read_bytes())
+    if len(certs) < 2:
+        raise ValueError("fullchain.pem must contain a leaf and intermediate")
+    root_path = directory / "root.pem"
+    if root_path.is_file():
+        root = x509.load_pem_x509_certificate(root_path.read_bytes())
+    elif certs[-1].subject == certs[-1].issuer:
+        # Some demo chains include their self-signed root in fullchain.pem.
+        root = certs[-1]
+    else:
+        root = next((candidate for candidate in roots.values()
+                     if certs[-1].issuer == candidate.subject), None)
+        if root is None:
+            raise ValueError("fullchain.pem has no root.pem or known issuer for its final certificate")
+    for child, issuer in zip(certs, certs[1:] + [root]):
+        child.verify_directly_issued_by(issuer)
+    return certs[0]
 
 
 def main():
@@ -69,30 +78,16 @@ def main():
                 failures.append("missing root: %s" % entry["issuer"])
             else:
                 try:
-                    verify_signature(cert, root)
+                    cert.verify_directly_issued_by(root)
                 except Exception as exc:
                     failures.append("bad issuer signature: %s / %s: %s" %
                                     (name, entry["issuer"], exc))
-        print("  %-22s %d cert(s), key %s" %
-              (name, len(variants), "OK" if key_path.exists() else "MISSING"))
+        print("  %-22s %d cert(s) checked" % (name, len(variants)))
 
     for label in ("demo-cert", "demo-cert-emsign"):
         d = DEMO / label
         try:
-            if (d / "leaf.crt.pem").exists():
-                leaf = x509.load_pem_x509_certificate((d / "leaf.crt.pem").read_bytes())
-                inter = x509.load_pem_x509_certificate((d / "intermediate.pem").read_bytes())
-                root = x509.load_pem_x509_certificate((d / "root.pem").read_bytes())
-            else:
-                pem = (d / "fullchain.pem").read_text()
-                certs = [x509.load_pem_x509_certificate(
-                    (block + "-----END CERTIFICATE-----\n").encode())
-                    for block in pem.split("-----END CERTIFICATE-----") if block.strip()]
-                leaf, inter, root = certs[0], certs[1], certs[-1]
-            if leaf.issuer != inter.subject or inter.issuer != root.subject:
-                raise ValueError("subject/issuer mismatch")
-            verify_signature(leaf, inter)
-            verify_signature(inter, root)
+            leaf = verify_demo_chain(d, roots)
         except Exception as exc:
             failures.append("%s: %s" % (label, exc))
             print("  %-22s FAILED: %s" % (label, exc))

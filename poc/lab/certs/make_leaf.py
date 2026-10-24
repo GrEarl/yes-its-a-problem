@@ -8,10 +8,6 @@ import argparse
 import hashlib
 import json
 import os
-import shutil
-import subprocess
-import sys
-import tempfile
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
@@ -19,6 +15,8 @@ from cryptography import x509
 from cryptography.hazmat.primitives import hashes, serialization
 from cryptography.hazmat.primitives.asymmetric import ec
 from cryptography.x509.oid import ExtendedKeyUsageOID, NameOID
+
+from recover_keys import recover_key
 
 HERE = Path(__file__).resolve().parent
 WORKSPACE = HERE.parent.parent.parent
@@ -41,21 +39,12 @@ def load_root_cert(path, name):
 
 def recover_ca_key(cert_path, key_path):
     """Recover the tiny P-384 scalar from the public CA certificate."""
-    recover = WORKSPACE / "poc/lab/certs/recover_keys.py"
-    if not recover.exists():
-        raise SystemExit("CA key missing and recovery script not found: %s" % recover)
+    key = recover_key(x509.load_pem_x509_certificate(cert_path.read_bytes()))
     key_path.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
-    with tempfile.TemporaryDirectory() as td:
-        tmp_cert = Path(td) / "ca.crt.pem"
-        shutil.copyfile(cert_path, tmp_cert)
-        subprocess.run([sys.executable, str(recover), str(tmp_cert)], check=True)
-        tmp_key = tmp_cert.with_name("ca.key.pem")
-        if not tmp_key.exists():
-            raise SystemExit("recovery did not write %s" % tmp_key)
-        data = tmp_key.read_bytes()
     fd = os.open(key_path, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
     with os.fdopen(fd, "wb") as fh:
-        fh.write(data)
+        fh.write(key.private_bytes(serialization.Encoding.PEM,
+                 serialization.PrivateFormat.PKCS8, serialization.NoEncryption()))
     print("recovered CA key ->", key_path)
 
 
@@ -120,9 +109,11 @@ def main():
         recover_ca_key(Path(a.ca_cert), key_path)
     ca_key = serialization.load_pem_private_key(key_path.read_bytes(), password=None)
     root = load_root_cert(a.roots, a.root_name)
+    ca_cert.verify_directly_issued_by(root)
     leaf_key = ec.generate_private_key(ec.SECP256R1())
     builder = build_leaf(ca_cert, leaf_key, a.san or DEFAULT_SANS, a.days)
     leaf = builder.sign(private_key=ca_key, algorithm=hashes.SHA384())
+    leaf.verify_directly_issued_by(ca_cert)
 
     out = Path(a.out)
     out.mkdir(parents=True, exist_ok=True, mode=0o700)
