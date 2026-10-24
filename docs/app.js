@@ -4,7 +4,7 @@
   const t = (k) => (window.YIP_I18N ? window.YIP_I18N.t(k) : k);
   const $ = (id) => document.getElementById(id);
   const state = { dns: null, tls: null };
-  let checking = false;
+  let checking = null;
 
   function setText(id, text, cls) {
     const el = $(id);
@@ -12,27 +12,25 @@
     el.className = "result" + (cls ? " " + cls : "");
   }
 
-  function setBusy(btn, busyKey) {
-    if (!btn) return;
-    btn.disabled = true;
-    btn.textContent = t(busyKey);
-  }
-  function clearBusy(btn) {
-    if (!btn) return;
-    btn.disabled = false;
-    const key = btn.getAttribute("data-i18n");
-    if (key) btn.textContent = t(key);
+  function isSha256(value) {
+    return typeof value === "string" && /^[0-9a-f]{64}$/.test(value);
   }
 
   function renderAll() {
-    if (state.dns) setText("dns-result", t(state.dns.key), state.dns.cls);
-    if (state.tls) setText("tls-result", t(state.tls.key), state.tls.cls);
+    for (const kind of ["dns", "tls"]) {
+      const btn = $(kind + "-btn");
+      btn.disabled = Boolean(checking);
+      btn.textContent = t(checking === kind ? "checking" : btn.getAttribute("data-i18n"));
+      const result = state[kind];
+      if (checking === kind) setText(kind + "-result", t("checking"));
+      else if (result) setText(kind + "-result", t(result.key), result.cls);
+    }
     renderVerdict();
   }
 
   function renderVerdict() {
     const box = $("verdict");
-    if (!state.dns && !state.tls) {
+    if (checking || (!state.dns && !state.tls)) {
       box.classList.add("hidden");
       return;
     }
@@ -57,17 +55,17 @@
       "dnsUnknown:tlsBad": "verdictTlsOnlyDnsUnknown",
       "dnsUnknown:tlsUnknown": "verdictUnknown"
     }[dns + ":" + tls] || "verdictUnknown";
-    setText("verdict-summary", t(key), tls === "tlsBad" ? "bad" : (dns === "dnsSafe" && tls === "tlsGood") ? "good" : "warn");
+    setText("verdict-summary", t(key), tls === "tlsBad" ? "bad" : "warn");
   }
 
   async function fetchJson(url, ms = 10000) {
     const ctrl = new AbortController();
     const timer = setTimeout(() => ctrl.abort(), ms);
     try {
-      const res = await fetch(url, { cache: "no-store", signal: ctrl.signal, credentials: "omit" });
+      const res = await fetch(url, { cache: "no-store", signal: ctrl.signal, credentials: "omit", redirect: "error" });
       let data = null;
       try { data = await res.json(); } catch (_) {}
-      return { ok: res.ok, status: res.status, data };
+      return { ok: res.ok, data };
     } finally {
       clearTimeout(timer);
     }
@@ -75,17 +73,19 @@
 
   async function checkDns() {
     if (checking) return;
-    checking = true;
-    const btn = $("dns-btn");
-    setBusy(btn, "checking");
-    setText("dns-result", t("checking"), "");
+    checking = "dns";
+    renderAll();
     try {
-      const label = "r" + Math.random().toString(16).slice(2, 10);
-      const url = "https://" + label + "." + cfg.labDomain + "/probe?token=" + encodeURIComponent(label);
+      const label = "r" + crypto.randomUUID().replace(/-/g, "");
+      const host = label + "." + cfg.labDomain;
+      const url = "https://" + host + "/probe?token=" + encodeURIComponent(label);
       const res = await fetchJson(url);
-      if (res.ok && res.data && res.data.path === "fake") {
+      if (!res.ok || !res.data || res.data.token !== label || res.data.host !== host) {
+        throw new Error("Invalid DNS probe response");
+      }
+      if (res.data.path === "fake") {
         state.dns = { key: "dnsBad", cls: "bad" };
-      } else if (res.ok && res.data && res.data.path === "true") {
+      } else if (res.data.path === "true") {
         state.dns = { key: "dnsSafe", cls: "good" };
       } else {
         state.dns = { key: "dnsUnknown", cls: "warn" };
@@ -93,24 +93,24 @@
     } catch (_) {
       state.dns = { key: "dnsUnknown", cls: "warn" };
     } finally {
-      checking = false;
-      clearBusy(btn);
+      checking = null;
       renderAll();
     }
   }
 
   async function checkTls() {
     if (checking) return;
-    checking = true;
-    const btn = $("tls-btn");
-    setBusy(btn, "checking");
-    setText("tls-result", t("checking"), "");
+    checking = "tls";
+    renderAll();
     try {
       const res = await fetchJson("https://" + cfg.mitmHost + "/tls-probe");
-      if (res.ok && res.data && res.data.tls === "forged") {
+      if (!res.ok || !res.data || res.data.host !== cfg.mitmHost || !isSha256(res.data.leaf_sha256)) {
+        throw new Error("Invalid TLS probe response");
+      }
+      if (res.data.tls === "forged" && isSha256(res.data.issuer_spki_sha256)) {
         state.tls = { key: "tlsBad", cls: "bad" };
-      } else if (res.ok && res.data && res.data.tls === "valid") {
-        state.tls = { key: "tlsGood", cls: "good" };
+      } else if (res.data.tls === "other") {
+        state.tls = { key: "tlsGood", cls: "warn" };
       } else {
         state.tls = { key: "tlsUnknown", cls: "warn" };
       }
@@ -119,8 +119,7 @@
       // certificate was rejected, the network failed, or the lab is down.
       state.tls = { key: "tlsUnknown", cls: "warn" };
     } finally {
-      checking = false;
-      clearBusy(btn);
+      checking = null;
       renderAll();
     }
   }
