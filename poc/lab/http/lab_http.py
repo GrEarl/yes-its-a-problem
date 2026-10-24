@@ -76,6 +76,32 @@ def certificate_info(cert_path):
     return info
 
 
+LEGIT = {"merchant": "Karategata Demo Shop", "account": "KBC-0001",
+         "amount": 1000, "currency": "JPY"}
+ATTACKER = {"merchant": "Karategata Demo Shop", "account": "ATTACKER-9999",
+            "amount": 999999, "currency": "JPY"}
+
+
+def behavior_values(endpoint):
+    """Payload for this role and endpoint under the selected MITM behaviour.
+
+    observe  : the fake server returns genuine values; the client's own checks
+               pass and the attacker only reads the session (the default).
+    tamper   : both the quote and the payment are rewritten, so a client that
+               inspects the payload shows the mismatch.
+    redirect : the quote stays genuine and only the payment is rewritten, which
+               models a user who reviewed a correct quote and still pays the
+               attacker's account.
+    """
+    if ARGS.role == "true":
+        return LEGIT
+    if ARGS.behavior == "tamper":
+        return ATTACKER
+    if ARGS.behavior == "redirect" and endpoint == "pay":
+        return ATTACKER
+    return LEGIT
+
+
 def make_context(cert, key):
     ctx = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
     ctx.minimum_version = ssl.TLSVersion.TLSv1_2
@@ -179,14 +205,8 @@ class Handler(BaseHTTPRequestHandler):
                              "host": self.headers.get("Host", ""), "ts": time.time()})
             return
         if path == "/api/quote":
-            if ARGS.role == "true":
-                self._send(200, {"network": "true", "merchant": "Karategata Demo Shop",
-                                 "account": "KBC-0001", "amount": 1000, "currency": "JPY",
-                                 "ts": time.time()})
-            else:
-                self._send(200, {"network": "fake", "merchant": "Karategata Demo Shop",
-                                 "account": "ATTACKER-9999", "amount": 999999, "currency": "JPY",
-                                 "ts": time.time()})
+            self._send(200, {"network": ARGS.role, "behavior": ARGS.behavior,
+                             **behavior_values("quote"), "ts": time.time()})
             return
         if path == "/api/pay":
             self._send(200, self._pay_body())
@@ -203,13 +223,9 @@ class Handler(BaseHTTPRequestHandler):
         self._send(404, {"error": "not found"})
 
     def _pay_body(self):
-        if ARGS.role == "true":
-            return {"status": "paid", "network": "true", "merchant": "Karategata Demo Shop",
-                    "account": "KBC-0001", "amount": 1000, "currency": "JPY",
-                    "receipt": "DEMO-RECEIPT-0001"}
-        return {"status": "paid", "network": "fake", "merchant": "Karategata Demo Shop",
-                "account": "ATTACKER-9999", "amount": 999999, "currency": "JPY",
-                "receipt": "DEMO-FORGED-RECEIPT"}
+        receipt = "DEMO-RECEIPT-0001" if ARGS.role == "true" else "DEMO-FORGED-RECEIPT"
+        return {"status": "paid", "network": ARGS.role, "behavior": ARGS.behavior,
+                **behavior_values("pay"), "receipt": receipt}
 
     def do_POST(self):
         length = int(self.headers.get("Content-Length", "0") or "0")
@@ -238,6 +254,10 @@ def main():
     ap.add_argument("--forged-sni", default=",".join(
         name + suffix for name in ("login", "pay", "pkg")
         for suffix in (".v.lab.yes-its-a-problem.iamwonderingif.com", ".v.lab")))
+    ap.add_argument("--behavior", choices=["observe", "tamper", "redirect"], default="observe",
+                    help="fake MITM behaviour: observe returns genuine values so "
+                         "client checks pass (default); tamper rewrites quote and "
+                         "payment; redirect rewrites only the payment")
     ap.add_argument("--cert-is-forged", action="store_true",
                     help="compatibility assertion; the served chain is always inspected")
     ap.add_argument("--log")

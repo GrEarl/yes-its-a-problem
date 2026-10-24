@@ -42,10 +42,17 @@ Run this only against the lab names in this repository or hosts you control. The
 The demonstrated chain already gives an attacker two positions: the client is
 routed to a server the attacker controls, and the client accepts a forged
 certificate for it. From there the attacker reads and rewrites the session.
-The fake lab server mirrors the genuine quote values, so the demo client's own
-data checks pass while every displayed value is attacker-supplied; the same
-position also yields submitted credentials and modified traffic (information
-deception and collection).
+The fake lab server's behaviour is selectable with `--behavior`:
+
+* `observe` (default) mirrors the genuine quote and payment values, so the demo
+  client's own data checks pass while every displayed value is attacker-supplied.
+* `tamper` rewrites both the quote and the payment, which a client that inspects
+  the payload displays as a mismatch.
+* `redirect` keeps the quote genuine and rewrites only the payment, which models
+  a user who reviewed a correct quote and still pays the attacker's account.
+
+In every mode the same position also yields submitted credentials and modified
+traffic (information deception and collection).
 
 The same position escalates to code execution whenever a response body reaches
 a decoder with a memory-safety flaw, and that is live now, not hypothetical.

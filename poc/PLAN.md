@@ -43,8 +43,9 @@ The repository includes code that reconstructs compromised eMudhra CA keys from 
 
 The deployed threat model is the two demonstrated steps: a resolver-visible
 misdirection and a client that accepts a forged certificate, which together
-let the attacker read and rewrite the session (the fake server mirrors the
-genuine quote values, so the client's data checks pass). The same control of
+let the attacker read and rewrite the session (with the default
+`--behavior observe` the fake server mirrors the genuine quote values, so the
+client's data checks pass; `tamper` and `redirect` show the rewrite variants). The same control of
 response bodies escalates to RCE when the body reaches a flawed decoder.
 CVE-2026-111497 ("Node2Shell" / "HTTP2Shell") is the current live example:
 an out-of-bounds write in the Brotli decoder bundled with Node.js ("an

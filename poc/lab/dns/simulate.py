@@ -69,9 +69,9 @@ def compare(args):
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__)
-    ap.add_argument("--provider-port", type=int, default=5351)
-    ap.add_argument("--true-port", type=int, default=5352)
-    ap.add_argument("--fake-port", type=int, default=5353)
+    ap.add_argument("--provider-port", type=int, default=15351)
+    ap.add_argument("--true-port", type=int, default=15352)
+    ap.add_argument("--fake-port", type=int, default=15353)
     ap.add_argument("--name", default="www." + "v." + ZONE)
     ap.add_argument("--true-ip", default="192.0.2.10")
     ap.add_argument("--fake-ip", default="198.51.100.66")

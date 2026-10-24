@@ -19,18 +19,18 @@ cleanup() {
 trap cleanup EXIT
 PIDS=()
 
-python3 lab_dns.py --role provider --bind 127.0.0.1 --port 5351 \
+python3 lab_dns.py --role provider --bind 127.0.0.1 --port 15351 \
   --zone "$ZONE" --child "$CHILD" --provider-ns "$PROVIDER_NS" \
   --true-ip "$TRUE_IP" --fake-ip "$FAKE_IP" --provider-ip 127.0.0.1 \
   --ttl 0 --log "$LOG" >/tmp/lab-provider.out 2>&1 &
 PIDS+=($!)
 
-python3 lab_dns.py --role true --bind 127.0.0.1 --port 5352 \
+python3 lab_dns.py --role true --bind 127.0.0.1 --port 15352 \
   --zone "$ZONE" --child "$CHILD" --provider-ns "$PROVIDER_NS" \
   --true-ip "$TRUE_IP" --fake-ip "$FAKE_IP" --ttl 0 --log "$LOG" >/tmp/lab-true.out 2>&1 &
 PIDS+=($!)
 
-python3 lab_dns.py --role fake --bind 127.0.0.1 --port 5353 \
+python3 lab_dns.py --role fake --bind 127.0.0.1 --port 15353 \
   --zone "$ZONE" --child "$CHILD" --provider-ns "$PROVIDER_NS" \
   --true-ip "$TRUE_IP" --fake-ip "$FAKE_IP" --ttl 0 --log "$LOG" >/tmp/lab-fake.out 2>&1 &
 PIDS+=($!)
@@ -44,7 +44,7 @@ for pid in "${PIDS[@]}"; do
 done
 
 echo "=== dig +norecurse to the provider (referral with malicious ADDITIONAL)"
-dig +norecurse +noall +comments +authority +additional @127.0.0.1 -p 5351 \
+dig +norecurse +noall +comments +authority +additional @127.0.0.1 -p 15351 \
   "www.$CHILD.$ZONE" A
 echo
 echo "=== configured endpoint comparison (not a recursive resolver test)"
@@ -56,18 +56,18 @@ cat "$LOG"
 echo "=== scenario 2: external child-NS contract (--child-ns, deployment topology)"
 CHILD_NS="ns-child.yes-its-a-problem.iamwonderingif.com"
 
-python3 lab_dns.py --role provider --bind 127.0.0.1 --port 5354 \
+python3 lab_dns.py --role provider --bind 127.0.0.1 --port 15354 \
   --zone "$ZONE" --child "$CHILD" --provider-ns "$PROVIDER_NS" --child-ns "$CHILD_NS" \
   --true-ip "$TRUE_IP" --fake-ip "$FAKE_IP" --provider-ip 127.0.0.1 \
   --ttl 0 --log "$LOG" >/tmp/lab-xprovider.out 2>&1 &
 PIDS+=($!)
 
-python3 lab_dns.py --role true --bind 127.0.0.1 --port 5355 \
+python3 lab_dns.py --role true --bind 127.0.0.1 --port 15355 \
   --zone "$ZONE" --child "$CHILD" --provider-ns "$PROVIDER_NS" --child-ns "$CHILD_NS" \
   --true-ip "$TRUE_IP" --fake-ip "$FAKE_IP" --ttl 0 --log "$LOG" >/tmp/lab-xtrue.out 2>&1 &
 PIDS+=($!)
 
-python3 lab_dns.py --role fake --bind 127.0.0.1 --port 5356 \
+python3 lab_dns.py --role fake --bind 127.0.0.1 --port 15356 \
   --zone "$ZONE" --child "$CHILD" --provider-ns "$PROVIDER_NS" --child-ns "$CHILD_NS" \
   --true-ip "$TRUE_IP" --fake-ip "$FAKE_IP" --ttl 0 --log "$LOG" >/tmp/lab-xfake.out 2>&1 &
 PIDS+=($!)
@@ -81,18 +81,18 @@ for pid in "${PIDS[@]:3}"; do
 done
 
 echo "=== referral for www.$CHILD.$ZONE (external NS + unrelated ADDITIONAL A -> fake IP)"
-dig +norecurse +noall +comments +authority +additional @127.0.0.1 -p 5354 \
+dig +norecurse +noall +comments +authority +additional @127.0.0.1 -p 15354 \
   "www.$CHILD.$ZONE" A
 echo
 echo "=== the provider holds no data for the external NS name (out-of-zone REFUSED)"
-dig +norecurse +noall +comments @127.0.0.1 -p 5354 "$CHILD_NS" A
+dig +norecurse +noall +comments @127.0.0.1 -p 15354 "$CHILD_NS" A
 echo
 echo "=== true authority answers with the normal address; NS uses the external name"
-dig +norecurse +noall +answer +authority @127.0.0.1 -p 5355 "www.$CHILD.$ZONE" A
-dig +norecurse +noall +answer @127.0.0.1 -p 5355 "$CHILD.$ZONE" NS
+dig +norecurse +noall +answer +authority @127.0.0.1 -p 15355 "www.$CHILD.$ZONE" A
+dig +norecurse +noall +answer @127.0.0.1 -p 15355 "$CHILD.$ZONE" NS
 echo
 echo "=== fake authority answers with the alternate address"
-dig +norecurse +noall +answer @127.0.0.1 -p 5356 "www.$CHILD.$ZONE" A
+dig +norecurse +noall +answer @127.0.0.1 -p 15356 "www.$CHILD.$ZONE" A
 echo
 echo "=== query log (scenario 2 appended)"
 cat "$LOG"
