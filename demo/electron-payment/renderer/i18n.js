@@ -2,7 +2,7 @@
 (function () {
   const dict = {
     ja: {
-      pocNotice: "空手形銀行は架空の銀行です。実際の振込は行われません。展開と検証は途中で、現時点では Proof ではありません。",
+      pocNotice: "空手形銀行は架空の銀行です。実際の振込は行われません。展開と検証は途中で，現時点では Proof ではありません。",
       bankName: "空手形銀行",
       paymentTitle: "振込内容",
       payee: "送金先",
@@ -12,15 +12,15 @@
       quoteBtn: "内容を確認",
       payBtn: "送金する",
       receivedTitle: "受信した内容",
-      dangerMismatch: "危険: 送金先、口座、金額のいずれかが振込内容と一致しません。",
-      safeBody: "安全: 証明書の検証に失敗したため、接続は確立されませんでした。",
+      dangerMismatch: "危険: 送金先，口座，金額のいずれかが振込内容と一致しません。",
+      safeBody: "安全: 証明書の検証に失敗したため，接続は確立されませんでした。",
       electronUnavailable: "判定不能: Electron で起動してください。",
       configFailed: "判定不能: 設定を取得できませんでした。",
       loading: "取得中...",
       quoteFailed: "判定不能: 振込内容を取得できませんでした。",
       requestFailed: "判定不能: 通信または応答に問題がありました。",
       quoteOk: "振込内容を受信しました。",
-      tampered: "送金先、口座、金額のいずれかが一致しません。",
+      tampered: "送金先，口座，金額のいずれかが一致しません。",
       paidWith: "PoC の送金を完了しました。（PoC 領収書 %s）",
       siteLink: "PoC サイト"
     },
