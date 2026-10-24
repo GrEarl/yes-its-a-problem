@@ -1,0 +1,11 @@
+{
+  "hosts": {
+    "provider": {"ipv4": null, "ssh": null},
+    "fake": {"ipv4": null, "ssh": null},
+    "true": {"ipv4": null, "ssh": null}
+  },
+  "acme_email": null,
+  "state_dir": null,
+  "forged_fullchain": null,
+  "forged_key": null
+}
